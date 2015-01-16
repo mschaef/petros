@@ -51,10 +51,11 @@
 
 (defn wrap-request-logging [ app ]
   (fn [req]
-    ;; TODO: add timing data
-    (log/debug 'REQUEST (:request-method req) (:uri req))
-    (let [resp (app req)]
-      (log/trace 'RESPONSE (:status resp))
+    (log/trace 'REQ (:request-method req) (:uri req))
+    (let [t-begin (. System (nanoTime))
+          resp (app req)]
+      (log/debug 'RESP (:request-method req) (:uri req) (:status resp)
+                 (format "(%.1f)" (/ (- (. System (nanoTime)) t-begin) 1000000.0)))
       resp)))
 
 (defn wrap-show-response [ app label ]
