@@ -1,6 +1,7 @@
 (ns petros.core
   (:require [cemerick.friend :as friend]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [petros.data :as data]))
 
 (defn authenticated-username []
   (if-let [cauth (friend/current-authentication)]
@@ -9,6 +10,9 @@
 
 (defn report-unauthorized []
   (friend/throw-unauthorized (friend/current-authentication) {}))
+
+(defn current-user-id []
+  ((data/get-user-by-email (authenticated-username)) :user_id))
 
 (def ^:dynamic *in-mobile-request* false)
 

@@ -8,8 +8,8 @@ CREATE CACHED TABLE user (
 CREATE CACHED TABLE count_sheet (
   count_sheet_id BIGINT IDENTITY,
   creator_user_id BIGINT REFERENCES user(user_id),
-  create_date TIMESTAMP NOT NULL,
-  final_date TIMESTAMP NULL
+  created_on TIMESTAMP NOT NULL,
+  final_on TIMESTAMP NULL
 );
 
 CREATE CACHED TABLE category (

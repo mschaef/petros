@@ -7,15 +7,12 @@
             [petros.core :as core]
             [petros.user :as user]
             [petros.view :as view]
-            [clojure.java.jdbc :as jdbc]
+            [petros.app :as app]
             [cemerick.friend :as friend]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as credentials]))
-
-(defn current-user-id []
-  ((data/get-user-by-email (core/authenticated-username)) :user_id))
 
 
 (defmacro catch-validation-errors [ & body ]
@@ -32,14 +29,11 @@
     (user-info :user_id)
     nil))
 
-(defroutes app-routes
-  (GET "/" []
-    (view/render-page {:page-title "Hello World"}
-                      [:h1 "Hello World"])))
+
 
 (def site-routes (routes user/public-routes
                          (route/resources "/")
-                         (friend/wrap-authorize app-routes #{::user})
+                         (friend/wrap-authorize app/app-routes #{::user})
                          (route/not-found "Resource Not Found")))
 
 (defn db-credential-fn [ creds ]
