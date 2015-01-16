@@ -51,10 +51,7 @@
      [:tr [:td ] [:td (form/submit-button {} "Create User")]]])))
 
 (defn create-user  [ email-addr password ]
-  (let [uid (data/add-user email-addr password)
-        list-id (data/add-list "Todo")]
-    (data/add-list-owner uid list-id)
-    uid))
+  (data/add-user email-addr password))
 
 (defn add-user [ email-addr password password2 ] 
   (cond
