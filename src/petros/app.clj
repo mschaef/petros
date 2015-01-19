@@ -29,6 +29,11 @@
                           (data/all-count-sheets))]))
 
 
+(defn category-selector []
+  [:select { :name "category-id" }
+   (map (fn [ info ]
+          [:option { :value (:category_id info )} (:name info)])
+        (data/all-categories))])
 
 (defn render-sheet [ id ]
   (view/render-page {:page-title "Count Sheet"}
@@ -36,10 +41,12 @@
                                   [:table
                                    [:tr
                                     [:td "Contributor"]
+                                    [:td "Category"]
                                     [:td "Amount"]
                                     [:td "Notes"]]
                                    [:tr
                                     [:td (form/text-field {  } "contributor")]
+                                    [:td (category-selector)]
                                     [:td (form/text-field {  } "amount")]
                                     [:td
                                      (form/text-field {  } "notes")
@@ -47,6 +54,7 @@
                                    (map (fn [ dep ]
                                           [:tr
                                            [:td (:name dep)]
+                                           [:td (:category dep)]
                                            [:td (:amount dep)]
                                            [:td (:notes dep)]])
                                         (data/all-count-sheet-deposits id))])))
@@ -63,9 +71,10 @@
     (render-sheet sheet-id))
 
   (POST "/sheet/:sheet-id"  { {sheet-id :sheet-id 
+                               category-id :category-id
                                contributor :contributor
                                amount :amount
                                notes :notes} :params }
-    (log/info "add line item:" [ sheet-id contributor amount notes ])
-    (data/add-deposit sheet-id contributor amount notes)
+    (log/info "add line item:" [ sheet-id contributor category-id amount notes ])
+    (data/add-deposit sheet-id contributor category-id amount notes)
     (ring/redirect (sheet-url sheet-id))))

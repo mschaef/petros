@@ -55,6 +55,14 @@
     (or (contributor-id name)
         (add-contributor name))))
 
+;;; category
+
+(defn all-categories [ ]
+  (query-all *db*
+             [(str "SELECT category_id, name"
+                   "  FROM category"
+                   " ORDER BY category_id")]))
+
 ;;; count_sheet
 
 (defn add-count-sheet [ user-id ]
@@ -72,17 +80,18 @@
 
 (defn all-count-sheet-deposits [ sheet-id ]
   (query-all *db*
-             [(str "SELECT c.name, di.amount, di.notes"
-                   "  FROM deposit_item di, contributor c"
+             [(str "SELECT c.name, di.amount, di.notes, cat.name as category"
+                   "  FROM deposit_item di, contributor c, category cat"
                    " WHERE di.count_sheet_id=?"
                    "   AND di.contributor_id=c.contributor_id"
+                   "   AND di.category_id=cat.category_id"
                    " ORDER BY di.item_id DESC")
               sheet-id]))
 
-(defn add-deposit [ sheet-id contributor-name amount notes ]
+(defn add-deposit [ sheet-id contributor-name category-id amount notes ]
   (jdbc/insert! *db* :deposit_item
                 {:count_sheet_id sheet-id
                  :contributor_id (intern-contributor contributor-name)
                  :amount amount
                  :notes notes
-                 :category_id 1}))
+                 :category_id category-id}))
