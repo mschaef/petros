@@ -7,9 +7,14 @@
 
 (def ^:dynamic *db* nil)
 
-(defmacro with-db-connection [ var & body ]
+(defmacro with-db-connection [ & body ]
   `(binding [ *db* db-connection ]
      ~@body))
+
+(defmacro with-transaction [ & body ]
+  `(jdbc/with-db-transaction [ db-trans# *db* ]
+     (binding [ *db* db-trans# ]
+       ~@body)))
 
 ;;; user
 
@@ -32,6 +37,24 @@
               {:email_addr email-addr
                :password password}))))
 
+;;; contributor
+
+(defn contributor-id [ name ]
+  (query-scalar *db* [(str "SELECT contributor_id "
+                           " FROM contributor "
+                           " WHERE name=?")
+                      name]))
+
+(defn- add-contributor [ name ]
+  (:contributor_id (first 
+                    (jdbc/insert! *db* :contributor
+                                  {:name name}))))
+
+(defn intern-contributor [ name ]
+  (with-transaction
+    (or (contributor-id name)
+        (add-contributor name))))
+
 ;;; count_sheet
 
 (defn add-count-sheet [ user-id ]
@@ -46,3 +69,20 @@
                    "  FROM count_sheet cs, user u "
                    " WHERE u.user_id = cs.creator_user_id"
                    " ORDER BY cs.created_on DESC")]))
+
+(defn all-count-sheet-deposits [ sheet-id ]
+  (query-all *db*
+             [(str "SELECT c.name, di.amount, di.notes"
+                   "  FROM deposit_item di, contributor c"
+                   " WHERE di.count_sheet_id=?"
+                   "   AND di.contributor_id=c.contributor_id"
+                   " ORDER BY di.item_id DESC")
+              sheet-id]))
+
+(defn add-deposit [ sheet-id contributor-name amount notes ]
+  (jdbc/insert! *db* :deposit_item
+                {:count_sheet_id sheet-id
+                 :contributor_id (intern-contributor contributor-name)
+                 :amount amount
+                 :notes notes
+                 :category_id 1}))

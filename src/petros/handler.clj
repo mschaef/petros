@@ -64,7 +64,7 @@
 
 (defn wrap-db-connection [ app ]
   (fn [ req ]
-    (data/with-db-connection db
+    (data/with-db-connection
       (app req))))
 
 (def handler (-> site-routes
