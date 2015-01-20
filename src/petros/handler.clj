@@ -29,12 +29,11 @@
     (user-info :user_id)
     nil))
 
-
-
-(def site-routes (routes user/public-routes
-                         (route/resources "/")
-                         (friend/wrap-authorize app/app-routes #{::user})
-                         (route/not-found "Resource Not Found")))
+(def site-routes
+  (routes user/public-routes
+          (route/resources "/")
+          (friend/wrap-authorize app/app-routes #{::user})
+          (route/not-found "Resource Not Found")))
 
 (defn db-credential-fn [ creds ]
   (let [user-record (data/get-user-by-email (creds :username))]
@@ -73,6 +72,5 @@
                  (extend-session-duration 168)
                  (wrap-db-connection)
                  (wrap-request-logging)
-                 (core/wrap-mobile-detect)
                  (handler/site)))
 
