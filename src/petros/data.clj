@@ -80,7 +80,7 @@
 
 (defn all-count-sheet-deposits [ sheet-id ]
   (query-all *db*
-             [(str "SELECT c.name, di.amount, di.notes, cat.name as category"
+             [(str "SELECT c.name, di.amount, di.notes, di.check_number, cat.name as category"
                    "  FROM deposit_item di, contributor c, category cat"
                    " WHERE di.count_sheet_id=?"
                    "   AND di.contributor_id=c.contributor_id"
@@ -88,10 +88,11 @@
                    " ORDER BY di.item_id DESC")
               sheet-id]))
 
-(defn add-deposit [ sheet-id contributor-name category-id amount notes ]
+(defn add-deposit [ sheet-id contributor-name category-id amount check-number notes ]
   (jdbc/insert! *db* :deposit_item
                 {:count_sheet_id sheet-id
                  :contributor_id (intern-contributor contributor-name)
                  :amount amount
+                 :check_number check-number
                  :notes notes
                  :category_id category-id}))

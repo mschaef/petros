@@ -1,9 +1,11 @@
 * Release 1
-** TODO Create new count sheet and view on list.
-** TODO Add entry to count sheet
 ** TODO Delete entry from count sheet.
-** TODO Add category to count sheet entry
 ** TODO Display Count sheet in report format
 ** TODO Display attribution shset in report format
 ** TODO Tie count sheet entry to contributor.
+* Done
+** DONE Validation logic for line item entry.
+** DONE Add category to count sheet entry
+** DONE Create new count sheet and view on list.
+** DONE Add entry to count sheet
 * Backlog

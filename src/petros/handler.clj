@@ -15,15 +15,6 @@
             [cemerick.friend.credentials :as credentials]))
 
 
-(defmacro catch-validation-errors [ & body ]
-  `(try+
-    ~@body
-    (catch [ :type :form-error ] details#
-      ( :markup details#))))
-
-(defn fail-validation [ markup ]
-  (throw+ { :type :form-error :markup markup }))
-
 (defn get-user-id-by-email [ email ]
   (if-let [ user-info (data/get-user-by-email email) ]
     (user-info :user_id)
@@ -59,7 +50,8 @@
 
 (defn extend-session-duration [ app duration-in-hours ]
   (fn [req]
-    (assoc (app req) :session-cookie-attrs {:max-age (* duration-in-hours 3600)})))
+    (assoc (app req) :session-cookie-attrs
+           {:max-age (* duration-in-hours 3600)})))
 
 (defn wrap-db-connection [ app ]
   (fn [ req ]

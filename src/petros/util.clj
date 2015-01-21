@@ -1,4 +1,5 @@
 (ns petros.util
+  (:use [slingshot.slingshot :only (throw+ try+)])
   (:require [clojure.tools.logging :as log]
             [clojure.java.jdbc :as jdbc]))
 
@@ -71,6 +72,12 @@
    (catch Exception ex
      false)))
 
+(defn parsable-double? [ str ]
+  (try
+   (Double/parseDouble str)
+   (catch Exception ex
+     false)))
+
 (defn config-property 
   ( [ name ] (config-property name nil))
   ( [ name default ]
@@ -85,3 +92,14 @@
   (.addShutdownHook (Runtime/getRuntime)
                     (Thread. (fn []
                                (shutdown-fn)))))
+
+(defmacro with-validation [ fail-markup-fn & body ]
+  `(try+
+    ~@body
+    (catch [ :type :form-error ] details#
+      (~fail-markup-fn (:message details#)))))
+
+(defn fail-validation [ message ]
+  (throw+ { :type :form-error :message message }))
+
+

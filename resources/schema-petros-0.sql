@@ -37,6 +37,7 @@ CREATE CACHED TABLE deposit_item (
   count_sheet_id BIGINT REFERENCES count_sheet(count_sheet_id),
   contributor_id BIGINT REFERENCES contributor(contributor_id),
   category_id BIGINT REFERENCES category(category_id),
+  check_number NUMERIC(10) NULL,
   amount NUMERIC(9,2) NOT NULL,
   notes VARCHAR(1024)
 );
