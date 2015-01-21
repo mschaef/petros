@@ -35,8 +35,19 @@
            (:name info)])
         (data/all-categories))])
 
+(defn render-sheet-sidebar [ id ]
+  [:ul
+   [:li [:a { :href (str "/sheet/" id)} "Entry"]]
+   [:li [:a { :href (str "/sheet/" id "/summary")} "Summary View"]]])
+
+(defn render-sheet-summary [ id error-msg init-vals ]
+  (view/render-page {:page-title "Count Sheet"
+                     :sidebar (render-sheet-sidebar id)}
+                    [:h1 "Summary goes here"]))
+
 (defn render-sheet [ id error-msg init-vals ]
-  (view/render-page {:page-title "Count Sheet"}
+  (view/render-page {:page-title "Count Sheet"
+                     :sidebar (render-sheet-sidebar id)}
                     (form/form-to { } [:post (str "/sheet/" id)]
                                   [:table
                                    [:tr
@@ -92,6 +103,9 @@
 
   (GET "/sheet/:sheet-id" [ sheet-id ]
     (render-sheet sheet-id nil {}))
+
+  (GET "/sheet/:sheet-id/summary" [ sheet-id ]
+    (render-sheet-summary sheet-id nil {}))
 
   (POST "/sheet/:sheet-id" { params :params }
     (let [ {sheet-id :sheet-id 
