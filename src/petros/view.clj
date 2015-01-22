@@ -41,14 +41,10 @@
   (let [username (core/authenticated-username)]
     (html [:html
            (standard-header page-title include-js)
-
            [:body
-
             [:div#header 
              (list [:a { :href "/" } app-name] " - ")
-
              page-title
-
              (unless (nil? username)
                [:div.right
                 [:span username " - " (logout-button)]])]
@@ -59,11 +55,10 @@
                 [:div#sidebar sidebar]]
                [:div.wrapper
                 [:div#contents
-                 contents
-                 (render-footer username)]])
+                 contents]])
               [:div#page-contents
-               contents
-               (render-footer username)])]])))
+               contents])
+            (render-footer username)]])))
 
 
 
