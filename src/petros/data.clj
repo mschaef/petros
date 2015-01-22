@@ -73,10 +73,13 @@
 
 (defn all-count-sheets [ ]
   (query-all *db*
-             [(str "SELECT cs.count_sheet_id, cs.created_on, cs.final_on, u.email_addr"
-                   "  FROM count_sheet cs, user u "
+             [(str "SELECT cs.count_sheet_id, cs.created_on, cs.final_on, u.email_addr, sum(di.amount) as total_amount"
+                   "  FROM count_sheet cs, user u, deposit_item di "
                    " WHERE u.user_id = cs.creator_user_id"
-                   " ORDER BY cs.created_on DESC")]))
+                   "   AND cs.count_sheet_id = di.count_sheet_id"
+                   " GROUP BY cs.count_sheet_id, cs.created_on, cs.final_on, u.email_addr"
+                   " ORDER BY cs.created_on DESC"
+)]))
 
 (defn all-count-sheet-deposits [ sheet-id ]
   (query-all *db*

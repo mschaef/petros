@@ -15,16 +15,20 @@
   (str "/sheet/" sheet-id))
 
 (defn render-home-page []
-  (view/render-page {:page-title "Petros Count Sheets"}
+  (view/render-page {:page-title "Petros Count Sheets" :sidebar "&nbsp;"}
                     (form/form-to [:post "/"]
                                   [:input {:type "submit"
                                            :value "Create Sheet"}])
                     [:table
+                     [:tr 
+                      [:td "Creator"]
+                      [:td "Created On"]
+                      [:td "Total Amount"]]
                      (map (fn [ cs ]
                             [:tr
-                             [:td 
-                              [:a {:href (sheet-url (:count_sheet_id cs))}
-                               (:created_on cs)]]])
+                             [:td (:email_addr cs)]
+                             [:td [:a {:href (sheet-url (:count_sheet_id cs))} (:created_on cs)]]
+                             [:td (str "$" (:total_amount cs))]])
                           (data/all-count-sheets))]))
 
 
