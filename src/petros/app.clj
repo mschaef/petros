@@ -44,29 +44,45 @@
    [:li [:a { :href (str "/sheet/" id)} "Entry"]]
    [:li [:a { :href (str "/sheet/" id "/summary")} "Summary View"]]])
 
-(defn group-summary-data [ s-data ]
-  (reduce (fn [ out entry ]
-            (assoc-in out [ (:category entry) (:type entry) ] (:total entry)))
+(defn group-summary [ summary ]
+  (reduce (fn [ out s-entry ]
+            (assoc-in out [ (:category s-entry) (:type s-entry) ] (:total s-entry)))
           {}
-          s-data))
+          summary))
 
-(defn render-sheet-summary [ id error-msg init-vals ]
+(defn total-amounts [ summary ]
+  (reduce (fn [ total s-entry ]
+            (log/error :s-entry s-entry)
+            (+ total (:total s-entry)))
+          0
+          summary))
+
+(defn render-sheet-summary [id error-msg init-vals ]
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar id)}
 
                     [:h1 "Summary"]
-                    (let [ summary-data (log/spy :error (group-summary-data (data/count-sheet-summary id)))]
+                    (let [summary (data/count-sheet-summary id)
+                          summary-data (group-summary summary)]
                       [:table
                        [:tr
                         [:td "Category"]
                         [:td "Check"]
-                        [:td "Cash"]]
+                        [:td "Cash"]
+                        [:td "Subtotal"]]
                        (map (fn [ cat-name ]
                               [:tr
                                [:td cat-name]
                                [:td (get-in summary-data [ cat-name :check ] "&nbsp;")]
-                               [:td (get-in summary-data [ cat-name :cash ] "&nbsp;")]])
-                            (data/all-category-names))])
+                               [:td (get-in summary-data [ cat-name :cash ] "&nbsp;")]
+                               [:td (+ (get-in summary-data [ cat-name :check ] 0.0)
+                                       (get-in summary-data [ cat-name :cash ] 0.0))]])
+                            (data/all-category-names))
+                       [:tr
+                        [:td "Total"]
+                        [:td (total-amounts (filter #(= :check (:type %)) summary))]
+                        [:td (total-amounts (filter #(= :cash (:type %)) summary))]
+                        [:td (total-amounts summary)]]])
                     
                     [:h1 "Checks"]
                     [:table
