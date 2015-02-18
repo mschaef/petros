@@ -44,23 +44,29 @@
    [:li [:a { :href (str "/sheet/" id)} "Entry"]]
    [:li [:a { :href (str "/sheet/" id "/summary")} "Summary View"]]])
 
+(defn group-summary-data [ s-data ]
+  (reduce (fn [ out entry ]
+            (assoc-in out [ (:category entry) (:type entry) ] (:total entry)))
+          {}
+          s-data))
+
 (defn render-sheet-summary [ id error-msg init-vals ]
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar id)}
 
                     [:h1 "Summary"]
-
-                    [:table
-                     [:tr
-                      [:td "Category"]
-                      [:td "Total"]]
-                     
-                     (map (fn [ dep ]
-                            [:tr
-                             [:td (:category dep)]
-                             [:td (:total dep)]
-                             ])
-                          (data/count-sheet-summary id))]
+                    (let [ summary-data (log/spy :error (group-summary-data (data/count-sheet-summary id)))]
+                      [:table
+                       [:tr
+                        [:td "Category"]
+                        [:td "Check"]
+                        [:td "Cash"]]
+                       (map (fn [ cat-name ]
+                              [:tr
+                               [:td cat-name]
+                               [:td (get-in summary-data [ cat-name :check ] "&nbsp;")]
+                               [:td (get-in summary-data [ cat-name :cash ] "&nbsp;")]])
+                            (data/all-category-names))])
                     
                     [:h1 "Checks"]
                     [:table

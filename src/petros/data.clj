@@ -63,6 +63,13 @@
                    "  FROM category"
                    " ORDER BY category_id")]))
 
+(defn all-category-names [ ]
+  (map :name
+       (query-all *db*
+                  [(str "SELECT name"
+                        "  FROM category"
+                        " ORDER BY category_id")])))
+
 ;;; count_sheet
 
 (defn add-count-sheet [ user-id ]
@@ -90,15 +97,14 @@
               sheet-id]))
 
 (defn count-sheet-summary [ sheet-id ]
-  (query-all *db*
-             [(str "SELECT cat.name as category, sum(di.amount) as total"
-                   "  FROM deposit_item di, category cat"
-                   " WHERE di.count_sheet_id=?"
-                   "   AND di.category_id=cat.category_id"
-                   " GROUP BY category"
-                   " ORDER BY category"
-                   )
-              sheet-id]))
+  (map #(assoc % :type (if (= (:type %) 0) :check :cash)) 
+       (query-all *db*
+                  [(str "SELECT cat.name as category, casewhen(di.check_number is null, 1, 0) as type, sum(di.amount) as total"
+                        "  FROM category cat JOIN deposit_item di ON di.category_id=cat.category_id"
+                        " WHERE di.count_sheet_id=?"
+                        " GROUP BY category, type"
+                        " ORDER BY category, type")
+                   sheet-id])))
 
 (defn add-deposit [ sheet-id contributor-name category-id amount check-number notes ]
   (jdbc/insert! *db* :deposit_item
