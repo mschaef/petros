@@ -52,10 +52,24 @@
 
 (defn total-amounts [ summary ]
   (reduce (fn [ total s-entry ]
-            (log/error :s-entry s-entry)
             (+ total (:total s-entry)))
           0
           summary))
+
+(defn ensure-bigdec [ val ]
+  (if (= (.getClass val) java.math.BigDecimal)
+    val
+    (java.math.BigDecimal. val)))
+
+(defn fmt-ccy
+  ([ amount ]
+      (fmt-ccy amount 0))
+  ([ amount default ]
+     (if (number? amount)
+       (format "$%.2f" (ensure-bigdec amount))
+       (if (number? default)
+         (fmt-ccy default)
+         default))))
 
 (defn render-sheet-summary [id error-msg init-vals ]
   (view/render-page {:page-title "Count Sheet"
@@ -73,16 +87,16 @@
                        (map (fn [ cat-name ]
                               [:tr
                                [:td cat-name]
-                               [:td (get-in summary-data [ cat-name :check ] "&nbsp;")]
-                               [:td (get-in summary-data [ cat-name :cash ] "&nbsp;")]
-                               [:td (+ (get-in summary-data [ cat-name :check ] 0.0)
-                                       (get-in summary-data [ cat-name :cash ] 0.0))]])
+                               [:td (fmt-ccy (get-in summary-data [ cat-name :check ]) "&nbsp;")]
+                               [:td (fmt-ccy (get-in summary-data [ cat-name :cash ]) "&nbsp;")]
+                               [:td (fmt-ccy (+ (get-in summary-data [ cat-name :check ] 0.0)
+                                                (get-in summary-data [ cat-name :cash ] 0.0)))]])
                             (data/all-category-names))
                        [:tr
                         [:td "Total"]
-                        [:td (total-amounts (filter #(= :check (:type %)) summary))]
-                        [:td (total-amounts (filter #(= :cash (:type %)) summary))]
-                        [:td (total-amounts summary)]]])
+                        [:td (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))]
+                        [:td (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))]
+                        [:td (fmt-ccy (total-amounts summary))]]])
                     
                     [:h1 "Checks"]
                     [:table
@@ -96,7 +110,7 @@
                             [:tr
                              [:td (:name dep)]
                              [:td (:category dep)]
-                             [:td (:amount dep)]
+                             [:td (fmt-ccy (:amount dep))]
                              [:td (or (:check_number dep) "Cash")]
                              [:td (:notes dep)]])
                           (filter :check_number
@@ -126,7 +140,7 @@
                                           [:tr
                                            [:td (:name dep)]
                                            [:td (:category dep)]
-                                           [:td (:amount dep)]
+                                           [:td (fmt-ccy (:amount dep))]
                                            [:td (or (:check_number dep) "Cash")]
                                            [:td (:notes dep)]
                                            [:td]])
