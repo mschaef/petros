@@ -122,6 +122,7 @@
                     (form/form-to { } [:post (str "/sheet/" id)]
                                   [:table
                                    [:tr
+                                    [:td]
                                     [:td "Contributor"]
                                     [:td "Category"]
                                     [:td "Amount"]
@@ -129,6 +130,7 @@
                                     [:td "Notes"]
                                     [:td]]
                                    [:tr
+                                    [:td]                                    
                                     [:td (form/text-field { } "contributor" (:contributor init-vals))]
                                     [:td (category-selector { } "category-id" (:category-id init-vals))]
                                     [:td (form/text-field { } "amount" (:amount init-vals))]
@@ -138,6 +140,8 @@
                                    [:tr [:td {:colspan "6"} error-msg]]
                                    (map (fn [ dep ]
                                           [:tr
+                                           [:td [:a {:href (str "/sheet/" id "?edit-item=" (:item_id dep))}
+                                                 [:i {:class "fa fa-pencil fa-lg"}]]]
                                            [:td (:name dep)]
                                            [:td (:category dep)]
                                            [:td (fmt-ccy (:amount dep))]
