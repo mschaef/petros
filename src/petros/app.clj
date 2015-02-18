@@ -47,7 +47,38 @@
 (defn render-sheet-summary [ id error-msg init-vals ]
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar id)}
-                    [:h1 "Summary goes here"]))
+
+                    [:h1 "Summary"]
+
+                    [:table
+                     [:tr
+                      [:td "Category"]
+                      [:td "Total"]]
+                     
+                     (map (fn [ dep ]
+                            [:tr
+                             [:td (:category dep)]
+                             [:td (:total dep)]
+                             ])
+                          (data/count-sheet-summary id))]
+                    
+                    [:h1 "Checks"]
+                    [:table
+                     [:tr
+                      [:td "Contributor"]
+                      [:td "Category"]
+                      [:td "Amount"]
+                      [:td "Check Number"]
+                      [:td "Notes"]]
+                     (map (fn [ dep ]
+                            [:tr
+                             [:td (:name dep)]
+                             [:td (:category dep)]
+                             [:td (:amount dep)]
+                             [:td (or (:check_number dep) "Cash")]
+                             [:td (:notes dep)]])
+                          (filter :check_number
+                                  (data/all-count-sheet-deposits id)))]))
 
 (defn render-sheet [ id error-msg init-vals ]
   (view/render-page {:page-title "Count Sheet"

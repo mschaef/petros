@@ -89,6 +89,17 @@
                    " ORDER BY di.item_id DESC")
               sheet-id]))
 
+(defn count-sheet-summary [ sheet-id ]
+  (query-all *db*
+             [(str "SELECT cat.name as category, sum(di.amount) as total"
+                   "  FROM deposit_item di, category cat"
+                   " WHERE di.count_sheet_id=?"
+                   "   AND di.category_id=cat.category_id"
+                   " GROUP BY category"
+                   " ORDER BY category"
+                   )
+              sheet-id]))
+
 (defn add-deposit [ sheet-id contributor-name category-id amount check-number notes ]
   (jdbc/insert! *db* :deposit_item
                 {:count_sheet_id sheet-id
