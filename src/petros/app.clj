@@ -116,39 +116,41 @@
                           (filter :check_number
                                   (data/all-count-sheet-deposits id)))]))
 
-(defn render-sheet [ id error-msg init-vals ]
+(defn render-sheet [ id error-msg init-vals edit-item ]
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar id)}
-                    (form/form-to { } [:post (str "/sheet/" id)]
-                                  [:table
-                                   [:tr
-                                    [:td]
-                                    [:td "Contributor"]
-                                    [:td "Category"]
-                                    [:td "Amount"]
-                                    [:td "Check Number"]
-                                    [:td "Notes"]
-                                    [:td]]
-                                   [:tr
-                                    [:td]                                    
-                                    [:td (form/text-field { } "contributor" (:contributor init-vals))]
-                                    [:td (category-selector { } "category-id" (:category-id init-vals))]
-                                    [:td (form/text-field { } "amount" (:amount init-vals))]
-                                    [:td (form/text-field { } "check-number" (:check-number init-vals))]
-                                    [:td (form/text-field { } "notes" (:notes init-vals))]
-                                    [:td (form/submit-button { } "Add Item")]]
-                                   [:tr [:td {:colspan "6"} error-msg]]
-                                   (map (fn [ dep ]
-                                          [:tr
-                                           [:td [:a {:href (str "/sheet/" id "?edit-item=" (:item_id dep))}
-                                                 [:i {:class "fa fa-pencil fa-lg"}]]]
-                                           [:td (:name dep)]
-                                           [:td (:category dep)]
-                                           [:td (fmt-ccy (:amount dep))]
-                                           [:td (or (:check_number dep) "Cash")]
-                                           [:td (:notes dep)]
-                                           [:td]])
-                                        (data/all-count-sheet-deposits id))])))
+                    [:table
+                     [:tr
+                      [:td]
+                      [:td "Contributor"]
+                      [:td "Category"]
+                      [:td "Amount"]
+                      [:td "Check Number"]
+                      [:td "Notes"]
+                      [:td]]
+                     (unless edit-item
+                       (form/form-to { } [:post (str "/sheet/" id)]
+                                     [:tr
+                                      [:td]                                    
+                                      [:td (form/text-field { } "contributor" (:contributor init-vals))]
+                                      [:td (category-selector { } "category-id" (:category-id init-vals))]
+                                      [:td (form/text-field { } "amount" (:amount init-vals))]
+                                      [:td (form/text-field { } "check-number" (:check-number init-vals))]
+                                      [:td (form/text-field { } "notes" (:notes init-vals))]
+                                      [:td (form/submit-button { } "Add Item")]]))
+                     [:tr [:td {:colspan "6"} error-msg]]
+                     (map (fn [ dep ]
+                            (list
+                             [:tr
+                              [:td [:a {:href (str "/sheet/" id "?edit-item=" (:item_id dep))}
+                                    [:i {:class "fa fa-pencil fa-lg"}]]]
+                              [:td (:name dep)]
+                              [:td (:category dep)]
+                              [:td (fmt-ccy (:amount dep))]
+                              [:td (or (:check_number dep) "Cash")]
+                              [:td (:notes dep)]
+                              [:td]]))
+                          (data/all-count-sheet-deposits id))]))
 
 
 (defn accept-integer [ obj message ]
@@ -176,8 +178,8 @@
     (data/add-count-sheet (core/current-user-id))
     (ring/redirect "/"))
 
-  (GET "/sheet/:sheet-id" [ sheet-id ]
-    (render-sheet sheet-id nil {}))
+  (GET "/sheet/:sheet-id" { { sheet-id :sheet-id  edit-item :edit-item } :params }
+    (render-sheet sheet-id nil {} edit-item))
 
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
     (render-sheet-summary sheet-id nil {}))
@@ -190,7 +192,7 @@
             check-number :check-number
             notes :notes} params ]
       (log/info "add line item:" params) 
-      (with-validation #(render-sheet sheet-id % params)
+      (with-validation #(render-sheet sheet-id % params nil)
         (data/add-deposit (accept-integer sheet-id          "Invalid sheet-id")
                           contributor
                           (accept-integer category-id       "Invalid category")
