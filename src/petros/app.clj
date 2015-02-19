@@ -71,6 +71,9 @@
          (fmt-ccy default)
          default))))
 
+(defn table-row [ & tds ]
+  `[:tr ~@(map (fn [ td ] [:td td]) tds)])
+
 (defn render-sheet-summary [id error-msg init-vals ]
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar id)}
@@ -79,79 +82,57 @@
                     (let [summary (data/count-sheet-summary id)
                           summary-data (group-summary summary)]
                       [:table
-                       [:tr
-                        [:td "Category"]
-                        [:td "Check"]
-                        [:td "Cash"]
-                        [:td "Subtotal"]]
+                       (table-row "Category" "Check" "Cash" "Subtotal")
                        (map (fn [ cat-name ]
-                              [:tr
-                               [:td cat-name]
-                               [:td (fmt-ccy (get-in summary-data [ cat-name :check ]) "&nbsp;")]
-                               [:td (fmt-ccy (get-in summary-data [ cat-name :cash ]) "&nbsp;")]
-                               [:td (fmt-ccy (+ (get-in summary-data [ cat-name :check ] 0.0)
-                                                (get-in summary-data [ cat-name :cash ] 0.0)))]])
+                              (table-row cat-name
+                                         (fmt-ccy (get-in summary-data [ cat-name :check ]) "&nbsp;")
+                                         (fmt-ccy (get-in summary-data [ cat-name :cash ]) "&nbsp;")
+                                         (fmt-ccy (+ (get-in summary-data [ cat-name :check ] 0.0)
+                                                     (get-in summary-data [ cat-name :cash ] 0.0)))))
                             (data/all-category-names))
-                       [:tr
-                        [:td "Total"]
-                        [:td (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))]
-                        [:td (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))]
-                        [:td (fmt-ccy (total-amounts summary))]]])
+                       (table-row "Total"
+                                  (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))
+                                  (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))
+                                  (fmt-ccy (total-amounts summary)))])
                     
                     [:h1 "Checks"]
                     [:table
-                     [:tr
-                      [:td "Contributor"]
-                      [:td "Category"]
-                      [:td "Amount"]
-                      [:td "Check Number"]
-                      [:td "Notes"]]
+                     (table-row "Contributor" "Category" "Amount" "Check Number" "Notes")
                      (map (fn [ dep ]
-                            [:tr
-                             [:td (:contributor dep)]
-                             [:td (:category_name dep)]
-                             [:td (fmt-ccy (:amount dep))]
-                             [:td (or (:check_number dep) "Cash")]
-                             [:td (:notes dep)]])
+                            (table-row (:contributor dep)
+                                       (:category_name dep)
+                                       (fmt-ccy (:amount dep))
+                                       (or (:check_number dep) "Cash")
+                                       (:notes dep)))
                           (filter :check_number
                                   (data/all-count-sheet-deposits id)))]))
+
 
 (defn render-sheet [ id error-msg init-vals edit-item ]
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar id)}
                     [:table
-                     [:tr
-                      [:td]
-                      [:td "Contributor"]
-                      [:td "Category"]
-                      [:td "Amount"]
-                      [:td "Check Number"]
-                      [:td "Notes"]
-                      [:td]]
+                     (table-row "Contributor" "Category" "Amount" "Check Number" "Notes")
                      (unless edit-item
                        (list
                         (form/form-to { } [:post (str "/sheet/" id)]
-                                      [:tr
-                                       [:td]                                    
-                                       [:td (form/text-field { } "contributor" (:contributor init-vals))]
-                                       [:td (category-selector { } "category-id" (:category-id init-vals))]
-                                       [:td (form/text-field { } "amount" (:amount init-vals))]
-                                       [:td (form/text-field { } "check-number" (:check-number init-vals))]
-                                       [:td (form/text-field { } "notes" (:notes init-vals))]
-                                       [:td (form/submit-button { } "Add Item")]])
+                                      (table-row (form/text-field { } "contributor" (:contributor init-vals))
+                                                 (category-selector { } "category-id" (:category-id init-vals))
+                                                 (form/text-field { } "amount" (:amount init-vals))
+                                                 (form/text-field { } "check-number" (:check-number init-vals))
+                                                 (form/text-field { } "notes" (:notes init-vals))
+                                                 (form/submit-button { } "Add Item")))
                         [:tr [:td {:colspan "6"} error-msg]]))
 
                      (map (fn [ dep ]
                             (list
-                             [:tr
-                              [:td [:a {:href (str "/sheet/" id "?edit-item=" (:item_id dep))}
-                                    [:i {:class "fa fa-pencil fa-lg"}]]]
-                              [:td (:contributor dep)]
-                              [:td (:category_name dep)]
-                              [:td (fmt-ccy (:amount dep))]
-                              [:td (or (:check_number dep) "Cash")]
-                              [:td (:notes dep)]
-                              [:td]]))
+                             (table-row [:a {:href (str "/sheet/" id "?edit-item=" (:item_id dep))}
+                                         [:i {:class "fa fa-pencil fa-lg"}]]
+                                        (:contributor dep)
+                                        (:category_name dep)
+                                        (fmt-ccy (:amount dep))
+                                        (or (:check_number dep) "Cash")
+                                        (:notes dep))))
                           (data/all-count-sheet-deposits id))]))
 
 
