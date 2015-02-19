@@ -88,7 +88,7 @@
 
 (defn all-count-sheet-deposits [ sheet-id ]
   (query-all *db*
-             [(str "SELECT c.name, di.amount, di.notes, di.check_number, cat.name as category, di.item_id"
+             [(str "SELECT c.name as contributor, di.amount, di.notes, di.check_number, cat.name as category_name, cat.category_id as category_id, di.item_id"
                    "  FROM deposit_item di, contributor c, category cat"
                    " WHERE di.count_sheet_id=?"
                    "   AND di.contributor_id=c.contributor_id"

@@ -108,8 +108,8 @@
                       [:td "Notes"]]
                      (map (fn [ dep ]
                             [:tr
-                             [:td (:name dep)]
-                             [:td (:category dep)]
+                             [:td (:contributor dep)]
+                             [:td (:category_name dep)]
                              [:td (fmt-ccy (:amount dep))]
                              [:td (or (:check_number dep) "Cash")]
                              [:td (:notes dep)]])
@@ -129,23 +129,25 @@
                       [:td "Notes"]
                       [:td]]
                      (unless edit-item
-                       (form/form-to { } [:post (str "/sheet/" id)]
-                                     [:tr
-                                      [:td]                                    
-                                      [:td (form/text-field { } "contributor" (:contributor init-vals))]
-                                      [:td (category-selector { } "category-id" (:category-id init-vals))]
-                                      [:td (form/text-field { } "amount" (:amount init-vals))]
-                                      [:td (form/text-field { } "check-number" (:check-number init-vals))]
-                                      [:td (form/text-field { } "notes" (:notes init-vals))]
-                                      [:td (form/submit-button { } "Add Item")]]))
-                     [:tr [:td {:colspan "6"} error-msg]]
+                       (list
+                        (form/form-to { } [:post (str "/sheet/" id)]
+                                      [:tr
+                                       [:td]                                    
+                                       [:td (form/text-field { } "contributor" (:contributor init-vals))]
+                                       [:td (category-selector { } "category-id" (:category-id init-vals))]
+                                       [:td (form/text-field { } "amount" (:amount init-vals))]
+                                       [:td (form/text-field { } "check-number" (:check-number init-vals))]
+                                       [:td (form/text-field { } "notes" (:notes init-vals))]
+                                       [:td (form/submit-button { } "Add Item")]])
+                        [:tr [:td {:colspan "6"} error-msg]]))
+
                      (map (fn [ dep ]
                             (list
                              [:tr
                               [:td [:a {:href (str "/sheet/" id "?edit-item=" (:item_id dep))}
                                     [:i {:class "fa fa-pencil fa-lg"}]]]
-                              [:td (:name dep)]
-                              [:td (:category dep)]
+                              [:td (:contributor dep)]
+                              [:td (:category_name dep)]
                               [:td (fmt-ccy (:amount dep))]
                               [:td (or (:check_number dep) "Cash")]
                               [:td (:notes dep)]
@@ -157,9 +159,12 @@
   (or (parsable-integer? obj)
       (fail-validation message)))
 
-(defn accept-double [ obj message ]
-  (or (parsable-double? obj)
-      (fail-validation message)))
+(defn accept-amount [ obj message ]
+  (if-let [ amt (parsable-double? obj) ]
+    (if (>= amt 0.0)
+      amt
+      (fail-validation message))
+    (fail-validation message)))
 
 (defn accept-check-number [ obj message ]
   (if (string-empty? obj) 
@@ -178,7 +183,7 @@
     (data/add-count-sheet (core/current-user-id))
     (ring/redirect "/"))
 
-  (GET "/sheet/:sheet-id" { { sheet-id :sheet-id  edit-item :edit-item } :params }
+  (GET "/sheet/:sheet-id" { { sheet-id :sheet-id edit-item :edit-item } :params }
     (render-sheet sheet-id nil {} edit-item))
 
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
@@ -196,7 +201,7 @@
         (data/add-deposit (accept-integer sheet-id          "Invalid sheet-id")
                           contributor
                           (accept-integer category-id       "Invalid category")
-                          (accept-double amount             "Invalid sheet-id")
+                          (accept-amount amount             "Invalid amount")
                           (accept-check-number check-number "Invalid check number")
                           (accept-notes notes               "Invalid notes")) 
         (ring/redirect (sheet-url sheet-id))))))
