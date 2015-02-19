@@ -112,14 +112,15 @@
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar id)}
                     [:table
-                     (table-row "Contributor" "Category" "Amount" "Check Number" "Notes")
+                     (table-row "" "Contributor" "Category" "Amount" "Check Number" "Notes")
                      (unless edit-item
                        (list
                         (form/form-to { } [:post (str "/sheet/" id)]
-                                      (table-row (form/text-field { } "contributor" (:contributor init-vals))
-                                                 (category-selector { } "category-id" (:category-id init-vals))
+                                      (table-row ""
+                                                 (form/text-field { } "contributor" (:contributor init-vals))
+                                                 (category-selector { } "category_id" (:category_id init-vals))
                                                  (form/text-field { } "amount" (:amount init-vals))
-                                                 (form/text-field { } "check-number" (:check-number init-vals))
+                                                 (form/text-field { } "check_number" (:check_number init-vals))
                                                  (form/text-field { } "notes" (:notes init-vals))
                                                  (form/submit-button { } "Add Item")))
                         [:tr [:td {:colspan "6"} error-msg]]))
@@ -172,16 +173,16 @@
 
   (POST "/sheet/:sheet-id" { params :params }
     (let [ {sheet-id :sheet-id 
-            category-id :category-id
+            category_id :category_id
             contributor :contributor
             amount :amount
-            check-number :check-number
+            check-number :check_number
             notes :notes} params ]
       (log/info "add line item:" params) 
       (with-validation #(render-sheet sheet-id % params nil)
         (data/add-deposit (accept-integer sheet-id          "Invalid sheet-id")
                           contributor
-                          (accept-integer category-id       "Invalid category")
+                          (accept-integer category_id       "Invalid category")
                           (accept-amount amount             "Invalid amount")
                           (accept-check-number check-number "Invalid check number")
                           (accept-notes notes               "Invalid notes")) 
