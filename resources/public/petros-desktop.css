@@ -316,3 +316,8 @@ table.form {
    padding-left: 0.2em;
    border-color: #707070;
 }
+
+tr.even {
+    background: #e0e0ff;
+}
+

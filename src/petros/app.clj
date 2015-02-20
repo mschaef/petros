@@ -27,6 +27,45 @@
          (fmt-ccy default)
          default))))
 
+
+(defn elem-has-attrs? [ elem ]
+  (let [ obj (second elem) ]
+    (if (map? obj)
+      obj
+      false)))
+
+(defn elem-attrs [ elem ]
+  (or (elem-has-attrs? elem)
+      {}))
+
+(defn elem-attr [ elem attr-name ]
+  (get (elem-attrs elem) attr-name))
+
+(defn elem-assoc-attrs [ elem new-attrs ]
+  (if (elem-has-attrs? elem)
+    (assoc elem 1 new-attrs)
+    `[~(first elem) ~new-attrs ~@(rest elem)]))
+
+(defn elem-merge-attrs [ elem new-attrs ]
+  (elem-assoc-attrs elem (merge (elem-attrs elem) new-attrs)))
+
+(defn map-body
+  ([ f elem ]
+     (if-let [ attrs (elem-has-attrs? elem) ]
+       `[~(first elem) ~attrs ~@(map f (rest (rest elem)))]
+       `[~(first elem) ~@(map f (rest elem))]))
+
+  ([ f elem c1 ]
+     (if-let [ attrs (elem-has-attrs? elem) ]
+       `[~(first elem) ~attrs ~@(map f (rest (rest elem)) c1)]
+       `[~(first elem) ~@(map f (rest elem) c1)])))
+
+(defn zebra [ elem ]
+  (map-body (fn [ selem class ]
+              (elem-assoc-attrs selem { :class class }))
+            elem
+            (cycle ["even" "odd"])))
+
 (defn table-head [ & tds ]
   `[:thead
     [:tr ~@(map (fn [ td ] [:th td]) tds)]])
@@ -42,12 +81,13 @@
                     (form/form-to [:post "/"]
                                   [:input {:type "submit"
                                            :value "Create Sheet"}])
-                    [:table
-                     (table-head "Creator" "Created On" "Total Amount")
-                     (map #(table-row (:email_addr %)
-                                      [:a {:href (sheet-url (:count_sheet_id %))} (:created_on %)]
-                                      (fmt-ccy (:total_amount %)))
-                          (data/all-count-sheets))]))
+                    (zebra
+                     `[:table
+                       ~(table-head "Creator" "Created On" "Total Amount")
+                       ~@(map #(table-row (:email_addr %)
+                                          [:a {:href (sheet-url (:count_sheet_id %))} (:created_on %)]
+                                          (fmt-ccy (:total_amount %)))
+                              (data/all-count-sheets))])))
 
 
 (defn category-selector [ attrs id val ]
