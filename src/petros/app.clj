@@ -107,9 +107,9 @@
                           (filter :check_number
                                   (data/all-count-sheet-deposits id)))]))
 
-(defn item-edit-row [ sheet-id error-msg init-vals ]
+(defn item-edit-row [ sheet-id error-msg init-vals post-target]
   (list
-   (form/form-to { } [:post (str "/sheet/" sheet-id)]
+   (form/form-to { } [:post post-target]
                  (table-row ""
                             (form/text-field { } "contributor" (:contributor init-vals))
                             (category-selector { } "category_id" (:category_id init-vals))
@@ -134,13 +134,17 @@
                     [:table
                      (table-row "" "Contributor" "Category" "Amount" "Check Number" "Notes")
                      (unless edit-item
-                       (item-edit-row sheet-id error-msg init-vals))
-                     (map #(item-display-row sheet-id %)
+                       (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id)))
+                     (map #(if (and (parsable-integer? edit-item)
+                                    (== (:item_id %) (parsable-integer? edit-item)))
+                             (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %)))
+                             (item-display-row sheet-id %))
                           (data/all-count-sheet-deposits sheet-id))]))
 
 
 (defn accept-integer [ obj message ]
-  (or (parsable-integer? obj)
+  (or (integer? obj)
+      (parsable-integer? obj)
       (fail-validation message)))
 
 (defn accept-amount [ obj message ]
@@ -172,6 +176,24 @@
 
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
     (render-sheet-summary sheet-id nil {}))
+
+  (POST "/item/:item-id" { params :params }
+    (let [ {item-id :item-id 
+            category_id :category_id
+            contributor :contributor
+            amount :amount
+            check-number :check_number
+            notes :notes} params
+            sheet-id (data/deposit-count-sheet-id item-id)]
+      (log/info "update line item:" params) 
+      (with-validation #(render-sheet sheet-id % params item-id)
+        (data/update-deposit (accept-integer item-id           "Invalid item-id")
+                             contributor
+                             (accept-integer category_id       "Invalid category")
+                             (accept-amount amount             "Invalid amount")
+                             (accept-check-number check-number "Invalid check number")
+                             (accept-notes notes               "Invalid notes")) 
+        (ring/redirect (sheet-url sheet-id)))))
 
   (POST "/sheet/:sheet-id" { params :params }
     (let [ {sheet-id :sheet-id 

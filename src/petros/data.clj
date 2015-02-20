@@ -106,6 +106,13 @@
                         " ORDER BY category, type")
                    sheet-id])))
 
+(defn deposit-count-sheet-id [ deposit-id ]
+  (query-scalar *db*
+                [(str "SELECT count_sheet_id"
+                      "  FROM deposit_item"
+                      " WHERE item_id=?")
+                 deposit-id]))
+
 (defn add-deposit [ sheet-id contributor-name category-id amount check-number notes ]
   (jdbc/insert! *db* :deposit_item
                 {:count_sheet_id sheet-id
@@ -114,3 +121,12 @@
                  :check_number check-number
                  :notes notes
                  :category_id category-id}))
+
+(defn update-deposit [ deposit-id contributor-name category-id amount check-number notes ]
+  (jdbc/update! *db* :deposit_item
+                {:contributor_id (intern-contributor contributor-name)
+                 :amount amount
+                 :check_number check-number
+                 :notes notes
+                 :category_id category-id}
+                ["item_id=?" deposit-id]))
