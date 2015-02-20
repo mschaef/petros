@@ -19,12 +19,10 @@
 
 (defn standard-includes [ include-js ]
   (list
-   (page/include-css "/reset.css"
-                     "/petros-desktop.css"
+   (page/include-css "/petros-desktop.css"
                      "/font-awesome.min.css")
 
-   (page/include-js "/jquery-1.10.1.js"
-                    "/jquery-ui.js")
+   (page/include-js "/jquery-1.10.1.js")
 
    (apply page/include-js (cons "/petros.js" include-js))))
 
