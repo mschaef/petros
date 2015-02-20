@@ -11,6 +11,9 @@
             [compojure.handler :as handler]
             [ring.util.response :as ring]))
 
+(def icon-pencil [:i {:class "fa fa-pencil fa-lg icon-pencil"}])
+(def icon-check  [:i {:class "fa fa-check fa-lg icon-check"}])
+(def icon-x  [:i {:class "fa fa-times fa-lg icon-x"}])
 
 (defn ensure-bigdec [ val ]
   (if (= (.getClass val) java.math.BigDecimal)
@@ -146,7 +149,7 @@
                           (filter :check_number
                                   (data/all-count-sheet-deposits id)))]))
 
-(defn item-edit-row [ sheet-id error-msg init-vals post-target]
+(defn item-edit-row [ sheet-id error-msg init-vals post-target cancel-target]
   (list
    (form/form-to { } [:post post-target]
                  (table-row ""
@@ -155,28 +158,32 @@
                             (form/text-field { } "amount" (:amount init-vals))
                             (form/text-field { } "check_number" (:check_number init-vals))
                             (form/text-field { } "notes" (:notes init-vals))
-                            (form/submit-button { } "Add Item")))
-   [:tr [:td {:colspan "6"} error-msg]]))
+                            (list
+                             [:button { :type "submit" } icon-check ]
+                             [:a {:href cancel-target} icon-x])))
+   [:tr [:td {:colspan "8"} error-msg]]))
 
 (defn item-display-row [ sheet-id dep-item ]
   (table-row [:a {:href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
-              [:i {:class "fa fa-pencil fa-lg"}]]
+              icon-pencil]
              (:contributor dep-item)
              (:category_name dep-item)
              (fmt-ccy (:amount dep-item))
              (or (:check_number dep-item) "Cash")
-             (:notes dep-item)))
+             (:notes dep-item)
+             ""
+             ))
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar sheet-id)}
                     [:table
-                     (table-head "" "Contributor" "Category" "Amount" "Check Number" "Notes")
+                     (table-head "" "Contributor" "Category" "Amount" "Check Number" "Notes" "")
                      (unless edit-item
-                       (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id)))
+                       (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))
                      (map #(if (and (parsable-integer? edit-item)
                                     (== (:item_id %) (parsable-integer? edit-item)))
-                             (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %)))
+                             (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
                              (item-display-row sheet-id %))
                           (data/all-count-sheet-deposits sheet-id))]))
 

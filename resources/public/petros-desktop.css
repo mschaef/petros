@@ -1,6 +1,19 @@
 /* petros-desktop.css - Site styles for desktop use */
 
 
+i.icon-x {
+    color: red;
+}
+
+i.icon-check {
+    color: green;
+}
+
+table button {
+    border: none;
+    background: white;
+}
+
 body, table, select, input {
     font-family:Helvetica,Arial,Verdana,sans-serif;
     font-size: 13px;
