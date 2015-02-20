@@ -11,6 +11,29 @@
             [compojure.handler :as handler]
             [ring.util.response :as ring]))
 
+
+(defn ensure-bigdec [ val ]
+  (if (= (.getClass val) java.math.BigDecimal)
+    val
+    (java.math.BigDecimal. val)))
+
+(defn fmt-ccy
+  ([ amount ]
+      (fmt-ccy amount 0))
+  ([ amount default ]
+     (if (number? amount)
+       (format "$%.2f" (ensure-bigdec amount))
+       (if (number? default)
+         (fmt-ccy default)
+         default))))
+
+(defn table-head [ & tds ]
+  `[:thead
+    [:tr ~@(map (fn [ td ] [:th td]) tds)]])
+
+(defn table-row [ & tds ]
+  `[:tr ~@(map (fn [ td ] [:td td]) tds)])
+
 (defn sheet-url [ sheet-id ]
   (str "/sheet/" sheet-id))
 
@@ -20,15 +43,10 @@
                                   [:input {:type "submit"
                                            :value "Create Sheet"}])
                     [:table
-                     [:tr 
-                      [:td "Creator"]
-                      [:td "Created On"]
-                      [:td "Total Amount"]]
-                     (map (fn [ cs ]
-                            [:tr
-                             [:td (:email_addr cs)]
-                             [:td [:a {:href (sheet-url (:count_sheet_id cs))} (:created_on cs)]]
-                             [:td (str "$" (:total_amount cs))]])
+                     (table-head "Creator" "Created On" "Total Amount")
+                     (map #(table-row (:email_addr %)
+                                      [:a {:href (sheet-url (:count_sheet_id %))} (:created_on %)]
+                                      (fmt-ccy (:total_amount %)))
                           (data/all-count-sheets))]))
 
 
@@ -56,24 +74,6 @@
           0
           summary))
 
-(defn ensure-bigdec [ val ]
-  (if (= (.getClass val) java.math.BigDecimal)
-    val
-    (java.math.BigDecimal. val)))
-
-(defn fmt-ccy
-  ([ amount ]
-      (fmt-ccy amount 0))
-  ([ amount default ]
-     (if (number? amount)
-       (format "$%.2f" (ensure-bigdec amount))
-       (if (number? default)
-         (fmt-ccy default)
-         default))))
-
-(defn table-row [ & tds ]
-  `[:tr ~@(map (fn [ td ] [:td td]) tds)])
-
 (defn render-sheet-summary [id error-msg init-vals ]
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar id)}
@@ -82,7 +82,7 @@
                     (let [summary (data/count-sheet-summary id)
                           summary-data (group-summary summary)]
                       [:table
-                       (table-row "Category" "Check" "Cash" "Subtotal")
+                       (table-head "Category" "Check" "Cash" "Subtotal")
                        (map (fn [ cat-name ]
                               (table-row cat-name
                                          (fmt-ccy (get-in summary-data [ cat-name :check ]) "&nbsp;")
@@ -97,13 +97,12 @@
                     
                     [:h1 "Checks"]
                     [:table
-                     (table-row "Contributor" "Category" "Amount" "Check Number" "Notes")
-                     (map (fn [ dep ]
-                            (table-row (:contributor dep)
-                                       (:category_name dep)
-                                       (fmt-ccy (:amount dep))
-                                       (or (:check_number dep) "Cash")
-                                       (:notes dep)))
+                     (table-head "Contributor" "Category" "Amount" "Check Number" "Notes")
+                     (map #(table-row (:contributor %)
+                                      (:category_name %)
+                                      (fmt-ccy (:amount %))
+                                      (or (:check_number %) "Cash")
+                                      (:notes %))
                           (filter :check_number
                                   (data/all-count-sheet-deposits id)))]))
 
@@ -132,7 +131,7 @@
   (view/render-page {:page-title "Count Sheet"
                      :sidebar (render-sheet-sidebar sheet-id)}
                     [:table
-                     (table-row "" "Contributor" "Category" "Amount" "Check Number" "Notes")
+                     (table-head "" "Contributor" "Category" "Amount" "Check Number" "Notes")
                      (unless edit-item
                        (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id)))
                      (map #(if (and (parsable-integer? edit-item)
