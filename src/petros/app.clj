@@ -80,10 +80,10 @@
   (str "/sheet/" sheet-id))
 
 (defn render-home-page []
-  (view/render-page {:page-title "Petros Count Sheets" :sidebar "&nbsp;"}
-                    (form/form-to [:post "/"]
-                                  [:input {:type "submit"
-                                           :value "Create Sheet"}])
+  (view/render-page {:page-title "Petros Count Sheets"
+                     :sidebar (form/form-to [:post "/"]
+                                            [:input {:type "submit"
+                                                     :value "Create Sheet"}])}
                     (zebra
                      `[:table
                        ~(table-head "Creator" "Created On" "Total Amount")
