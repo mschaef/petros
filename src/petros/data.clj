@@ -86,6 +86,13 @@
                    " GROUP BY cs.count_sheet_id, cs.created_on, cs.final_on, u.email_addr"
                    " ORDER BY cs.created_on DESC")]))
 
+(defn count-sheet-info [ sheet-id ]
+  (query-first *db*
+               [(str "SELECT cs.count_sheet_id, cs.created_on, cs.final_on, u.email_addr"
+                     "  FROM (count_sheet cs JOIN user u ON u.user_id = cs.creator_user_id)"
+                     "  WHERE count_sheet_id=?")
+                sheet-id]))
+
 (defn all-count-sheet-deposits [ sheet-id ]
   (query-all *db*
              [(str "SELECT c.name as contributor, di.amount, di.notes, di.check_number, cat.name as category_name, cat.category_id as category_id, di.item_id"

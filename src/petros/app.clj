@@ -123,12 +123,17 @@
           summary))
 
 (defn render-sheet-summary [id error-msg init-vals ]
-  (view/render-page {:page-title "Count Sheet"
-                     :sidebar (render-sheet-sidebar id)}
+  (let [info (data/count-sheet-info id)
+        summary (data/count-sheet-summary id)
+        summary-data (group-summary summary)]
+    (view/render-page {:page-title "Count Sheet"
+                       :sidebar (render-sheet-sidebar id)}
 
-                    [:h1 "Summary"]
-                    (let [summary (data/count-sheet-summary id)
-                          summary-data (group-summary summary)]
+                      [:table
+                       (table-row [:b "Created On:"] (:created_on info))
+                       (table-row [:b "Creator:"] (:email_addr info))]
+                      
+                      [:h1 "Summary"]
                       [:table.data
                        (table-head "Category" "Check" "Cash" "Subtotal")
                        (map (fn [ cat-name ]
@@ -141,18 +146,18 @@
                        (table-row "Total"
                                   (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))
                                   (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))
-                                  (fmt-ccy (total-amounts summary)))])
+                                  (fmt-ccy (total-amounts summary)))]
                     
-                    [:h1 "Checks"]
-                    [:table.data
-                     (table-head "Contributor" "Category" "Amount" "Check Number" "Notes")
-                     (map #(table-row (:contributor %)
-                                      (:category_name %)
-                                      (fmt-ccy (:amount %))
-                                      (or (:check_number %) "Cash")
-                                      (:notes %))
-                          (filter :check_number
-                                  (data/all-count-sheet-deposits id)))]))
+                      [:h1 "Checks"]
+                      [:table.data
+                       (table-head "Contributor" "Category" "Amount" "Check Number" "Notes")
+                       (map #(table-row (:contributor %)
+                                        (:category_name %)
+                                        (fmt-ccy (:amount %))
+                                        (or (:check_number %) "Cash")
+                                        (:notes %))
+                            (filter :check_number
+                                    (data/all-count-sheet-deposits id)))])))
 
 (defn item-edit-row [ sheet-id error-msg init-vals post-target cancel-target]
   (list
