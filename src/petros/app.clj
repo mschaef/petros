@@ -84,13 +84,12 @@
                      :sidebar (form/form-to [:post "/"]
                                             [:input {:type "submit"
                                                      :value "Create Sheet"}])}
-                    (zebra
-                     `[:table
-                       ~(table-head "Creator" "Created On" "Total Amount")
-                       ~@(map #(table-row (:email_addr %)
-                                          [:a {:href (sheet-url (:count_sheet_id %))} (:created_on %)]
-                                          (fmt-ccy (:total_amount %)))
-                              (data/all-count-sheets))])))
+                     [:table
+                      (table-head "Creator" "Created On" "Total Amount")
+                      (map #(table-row (:email_addr %)
+                                       [:a {:href (sheet-url (:count_sheet_id %))} (:created_on %)]
+                                       (fmt-ccy (:total_amount %)))
+                           (data/all-count-sheets))]))
 
 
 (defn category-selector [ attrs id val ]
@@ -124,7 +123,7 @@
                     [:h1 "Summary"]
                     (let [summary (data/count-sheet-summary id)
                           summary-data (group-summary summary)]
-                      [:table
+                      [:table#summary
                        (table-head "Category" "Check" "Cash" "Subtotal")
                        (map (fn [ cat-name ]
                               (table-row cat-name
@@ -139,7 +138,7 @@
                                   (fmt-ccy (total-amounts summary)))])
                     
                     [:h1 "Checks"]
-                    [:table
+                    [:table#summary
                      (table-head "Contributor" "Category" "Amount" "Check Number" "Notes")
                      (map #(table-row (:contributor %)
                                       (:category_name %)
@@ -161,7 +160,8 @@
                             (list
                              [:button { :type "submit" } icon-check ]
                              [:a {:href cancel-target} icon-x])))
-   [:tr [:td {:colspan "8"} error-msg]]))
+   (when error-msg
+     [:tr [:td {:colspan "8"} error-msg]])))
 
 (defn item-display-row [ sheet-id dep-item ]
   (table-row [:a {:href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}

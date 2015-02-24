@@ -15,7 +15,7 @@
                  [slingshot "0.12.1"]]
 
   :main petros.main
-
+  
   :jar-name "petros.jar"
   :uberjar-name "petros-standalone.jar"
   )
