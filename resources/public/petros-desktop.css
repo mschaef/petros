@@ -8,6 +8,12 @@ table td {
     padding-top: 0.25em;
     padding-bottom: 0.25em;
 
+}
+               
+table.data td {
+    padding-left: 1.25em;
+    padding-right: 1.25em;
+
     border-top: 1px solid gray;
     border-bottom: 1px solid gray;
 }
@@ -26,9 +32,9 @@ table button {
 }
 
 body, table, select, input {
-    font-family:Helvetica,Arial,Verdana,sans-serif;
+    font-family :Helvetica,Arial,Verdana,sans-serif;
     font-size: 13px;
-    line-height:1.2;
+    line-height :1.2;
 }
 
 body {

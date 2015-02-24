@@ -79,16 +79,22 @@
 (defn sheet-url [ sheet-id ]
   (str "/sheet/" sheet-id))
 
+(defn sheet-summary-url [ sheet-id ]
+  (str "/sheet/" sheet-id "/summary"))
+
 (defn render-home-page []
   (view/render-page {:page-title "Petros Count Sheets"
                      :sidebar (form/form-to [:post "/"]
                                             [:input {:type "submit"
                                                      :value "Create Sheet"}])}
-                     [:table
-                      (table-head "Creator" "Created On" "Total Amount")
-                      (map #(table-row (:email_addr %)
-                                       [:a {:href (sheet-url (:count_sheet_id %))} (:created_on %)]
-                                       (fmt-ccy (:total_amount %)))
+                     [:table.data
+                      (table-head "Creator" "Created On" "Total Amount" "" "")
+                      (map #(let [ id (:count_sheet_id %) ]
+                              (table-row (:email_addr %)
+                                         (:created_on %)
+                                         (fmt-ccy (:total_amount %))
+                                         [:a { :href (sheet-url id) } "Entry"]
+                                         [:a { :href (sheet-summary-url id) } "Summary"]))
                            (data/all-count-sheets))]))
 
 
@@ -101,8 +107,8 @@
 
 (defn render-sheet-sidebar [ id ]
   [:ul
-   [:li [:a { :href (str "/sheet/" id)} "Entry"]]
-   [:li [:a { :href (str "/sheet/" id "/summary")} "Summary View"]]])
+   [:li [:a { :href (sheet-url id)} "Entry"]]
+   [:li [:a { :href (sheet-summary-url id)} "Summary"]]])
 
 (defn group-summary [ summary ]
   (reduce (fn [ out s-entry ]
@@ -123,7 +129,7 @@
                     [:h1 "Summary"]
                     (let [summary (data/count-sheet-summary id)
                           summary-data (group-summary summary)]
-                      [:table#summary
+                      [:table.data
                        (table-head "Category" "Check" "Cash" "Subtotal")
                        (map (fn [ cat-name ]
                               (table-row cat-name
@@ -138,7 +144,7 @@
                                   (fmt-ccy (total-amounts summary)))])
                     
                     [:h1 "Checks"]
-                    [:table#summary
+                    [:table.data
                      (table-head "Contributor" "Category" "Amount" "Check Number" "Notes")
                      (map #(table-row (:contributor %)
                                       (:category_name %)
