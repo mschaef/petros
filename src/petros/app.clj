@@ -20,15 +20,18 @@
     val
     (java.math.BigDecimal. val)))
 
-(defn fmt-ccy
-  ([ amount ]
-      (fmt-ccy amount 0))
-  ([ amount default ]
-     (if (number? amount)
-       (format "$%.2f" (ensure-bigdec amount))
-       (if (number? default)
-         (fmt-ccy default)
-         default))))
+(defn formatter [ fmt-fn default-default ]
+  (fn fmt
+    ([ amount ]
+       (fmt amount default-default))
+    ([ amount default ]
+       (cond
+        (string? amount) amount
+        (nil? amount) (fmt default)
+        :else (fmt-fn amount)))))
+
+(def fmt-ccy (formatter #(format "$%.2f" (ensure-bigdec %)) 0))
+(def fmt-date (formatter #(format "%1$tB %1$te, %1$tY" %) ""))
 
 
 (defn elem-has-attrs? [ elem ]
@@ -91,7 +94,7 @@
                       (table-head "Creator" "Created On" "Total Amount" "" "")
                       (map #(let [ id (:count_sheet_id %) ]
                               (table-row (:email_addr %)
-                                         (:created_on %)
+                                         (fmt-date (:created_on %))
                                          (fmt-ccy (:total_amount %))
                                          [:a { :href (sheet-url id) } "Entry"]
                                          [:a { :href (sheet-summary-url id) } "Summary"]))
@@ -130,7 +133,7 @@
                        :sidebar (render-sheet-sidebar id)}
 
                       [:table
-                       (table-row [:b "Created On:"] (:created_on info))
+                       (table-row [:b "Created On:"] (fmt-date (:created_on info)))
                        (table-row [:b "Creator:"] (:email_addr info))]
                       
                       [:h1 "Summary"]
