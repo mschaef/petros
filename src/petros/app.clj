@@ -116,9 +116,11 @@
         (data/all-categories))])
 
 (defn render-sheet-sidebar [ id ]
-  [:ul
-   [:li [:a { :href (sheet-url id)} "Entry"]]
-   [:li [:a { :href (sheet-summary-url id)} "Summary"]]])
+  [:div.sheet-links
+   [:div.link
+     [:a { :href (sheet-url id)} "Entry"]]
+   [:div.link
+    [:a { :href (sheet-summary-url id)} "Summary"]]])
 
 (defn group-summary [ summary ]
   (reduce (fn [ out s-entry ]

@@ -65,6 +65,15 @@ div.sheet-header span.entry span.label {
     padding-right: 0.25em;
 }
 
+div.sheet-links {
+    padding-top: 0.5em;
+    padding-left: 1em;
+}
+
+div.sheet-links div.link {
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+}
 
 div#sidebar {
     padding-top: 3em;
