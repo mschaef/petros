@@ -207,6 +207,7 @@
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
   (let [ info (data/count-sheet-info sheet-id) ]
     (view/render-page {:page-title "Count Sheet"
+                       :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id)}
                       (render-sheet-header info)
                       [:table.form
