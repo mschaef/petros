@@ -33,7 +33,6 @@
 (def fmt-ccy (formatter #(format "$%.2f" (ensure-bigdec %)) 0))
 (def fmt-date (formatter #(format "%1$tB %1$te, %1$tY" %) ""))
 
-
 (defn elem-has-attrs? [ elem ]
   (let [ obj (second elem) ]
     (if (map? obj)
@@ -73,11 +72,19 @@
             (cycle ["even" "odd"])))
 
 (defn table-head [ & tds ]
-  `[:thead
-    [:tr ~@(map (fn [ td ] [:th td]) tds)]])
+    (let [ [ attrs tds ]
+         (if (map? tds)
+           [ (first tds) (rest tds) ]
+           [ {} tds ])]
+      `[:thead
+        [:tr ~attrs ~@(map (fn [ td ] [:th td]) tds)]]))
 
 (defn table-row [ & tds ]
-  `[:tr ~@(map (fn [ td ] [:td td]) tds)])
+  (let [ [ attrs tds ]
+         (if (map? tds)
+           [ (first tds) (rest tds) ]
+           [ {} tds ])]
+    `[:tr ~attrs ~@(map (fn [ td ] [:td td]) tds)]))
 
 (defn sheet-url [ sheet-id ]
   (str "/sheet/" sheet-id))
@@ -90,7 +97,7 @@
                      :sidebar (form/form-to [:post "/"]
                                             [:input {:type "submit"
                                                      :value "Create Sheet"}])}
-                     [:table.data
+                     [:table
                       (table-head "Creator" "Created On" "Total Amount" "" "")
                       (map #(let [ id (:count_sheet_id %) ]
                               (table-row (:email_addr %)
@@ -125,19 +132,23 @@
           0
           summary))
 
+(defn render-sheet-header [ info ]
+  [:div.sheet-header
+   [:span.entry
+    [:span.label "Created On:"] (fmt-date (:created_on info))]
+   [:span.entry
+    [:span.label "Creator:"] (:email_addr info)]])
+
 (defn render-sheet-summary [id error-msg init-vals ]
   (let [info (data/count-sheet-info id)
         summary (data/count-sheet-summary id)
         summary-data (group-summary summary)]
     (view/render-page {:page-title "Count Sheet"
                        :sidebar (render-sheet-sidebar id)}
-
-                      [:table
-                       (table-row [:b "Created On:"] (fmt-date (:created_on info)))
-                       (table-row [:b "Creator:"] (:email_addr info))]
+                      (render-sheet-header info)
                       
                       [:h1 "Summary"]
-                      [:table.data
+                      [:table
                        (table-head "Category" "Check" "Cash" "Subtotal")
                        (map (fn [ cat-name ]
                               (table-row cat-name
@@ -152,15 +163,18 @@
                                   (fmt-ccy (total-amounts summary)))]
                     
                       [:h1 "Checks"]
-                      [:table.data
+                      [:table
                        (table-head "Contributor" "Category" "Amount" "Check Number" "Notes")
-                       (map #(table-row (:contributor %)
-                                        (:category_name %)
-                                        (fmt-ccy (:amount %))
-                                        (or (:check_number %) "Cash")
-                                        (:notes %))
-                            (filter :check_number
-                                    (data/all-count-sheet-deposits id)))])))
+                       (let [ checks (filter :check_number
+                                             (data/all-count-sheet-deposits id))]
+                         (if (> (count checks) 0)
+                           (map #(table-row (:contributor %)
+                                            (:category_name %)
+                                            (fmt-ccy (:amount %))
+                                            (or (:check_number %) "Cash")
+                                            (:notes %))
+                                checks)
+                           [:tr [:td { :colspan "5" } "No Checks"]]))])))
 
 (defn item-edit-row [ sheet-id error-msg init-vals post-target cancel-target]
   (list
@@ -170,7 +184,7 @@
                             (category-selector { } "category_id" (:category_id init-vals))
                             (form/text-field { } "amount" (:amount init-vals))
                             (form/text-field { } "check_number" (:check_number init-vals))
-                            (form/text-field { } "notes" (:notes init-vals))
+                            (form/text-field { :style "width:100%"} "notes" (:notes init-vals))
                             (list
                              [:button { :type "submit" } icon-check ]
                              [:a {:href cancel-target} icon-x])))
@@ -189,17 +203,19 @@
              ))
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
-  (view/render-page {:page-title "Count Sheet"
-                     :sidebar (render-sheet-sidebar sheet-id)}
-                    [:table
-                     (table-head "" "Contributor" "Category" "Amount" "Check Number" "Notes" "")
-                     (unless edit-item
-                       (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))
-                     (map #(if (and (parsable-integer? edit-item)
-                                    (== (:item_id %) (parsable-integer? edit-item)))
-                             (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
-                             (item-display-row sheet-id %))
-                          (data/all-count-sheet-deposits sheet-id))]))
+  (let [ info (data/count-sheet-info sheet-id) ]
+    (view/render-page {:page-title "Count Sheet"
+                       :sidebar (render-sheet-sidebar sheet-id)}
+                      (render-sheet-header info)
+                      [:table.form
+                       (table-head "" "Contributor" "Category" "Amount" "Check Number" "Notes" "")
+                       (unless edit-item
+                         (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))
+                       (map #(if (and (parsable-integer? edit-item)
+                                      (== (:item_id %) (parsable-integer? edit-item)))
+                               (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
+                               (item-display-row sheet-id %))
+                            (data/all-count-sheet-deposits sheet-id))])))
 
 
 (defn accept-integer [ obj message ]

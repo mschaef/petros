@@ -9,13 +9,23 @@ table td {
     padding-bottom: 0.25em;
 
 }
-               
-table.data td {
+
+table.form td {
+    padding: 0.125em;
+    border: none;
+}
+
+table td {
     padding-left: 1.25em;
     padding-right: 1.25em;
 
-    border-top: 1px solid gray;
-    border-bottom: 1px solid gray;
+    border-top: 1px solid #c0c0c0;
+    border-bottom: 1px solid #c0c0c0;
+}
+
+table th {
+    padding-left: 1.25em;
+    padding-right: 1.25em;
 }
 
 i.icon-x {
@@ -40,6 +50,21 @@ body, table, select, input {
 body {
     overflow-x: hidden;
 }
+
+div.sheet-header {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+div.sheet-header span.entry {
+    padding-right: 1em;
+}
+
+div.sheet-header span.entry span.label {
+    font-weight: bold;
+    padding-right: 0.25em;
+}
+
 
 div#sidebar {
     padding-top: 3em;
