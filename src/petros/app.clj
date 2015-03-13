@@ -210,7 +210,7 @@
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id)}
                       (render-sheet-header info)
-                      [:table.form
+                      [:table.form.entries
                        (table-head "" "Contributor" "Category" "Amount" "Check Number" "Notes" "")
                        (unless edit-item
                          (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))

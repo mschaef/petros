@@ -75,6 +75,29 @@ div.sheet-links div.link {
     padding-bottom: 0.25em;
 }
 
+
+table.entries.form {
+    border-collapse: collapse;
+    width: 98%;
+}
+
+table.entries thead tr {
+    border: none;
+}
+
+table.entries tr {
+    border-top: 1px solid #c0c0c0;
+    border-bottom: 1px solid #c0c0c0;
+    
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+table.entries td {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
 div#sidebar {
     padding-top: 3em;
     float:left;
@@ -280,7 +303,8 @@ div#footer {
     clear: both;
     background: white;
 
-    border-top: 1px solid #c0c0c0;
+    padding-top: 2em;
+    //border-top: 1px solid #c0c0c0;
     color: #404040;
 
     text-align: center;
