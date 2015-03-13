@@ -116,11 +116,16 @@
         (data/all-categories))])
 
 (defn render-sheet-sidebar [ id ]
-  [:div.sheet-links
-   [:div.link
-     [:a { :href (sheet-url id)} "Entry"]]
-   [:div.link
-    [:a { :href (sheet-summary-url id)} "Summary"]]])
+  (let [info (data/count-sheet-info id)]
+    [:div.content
+     [:div.entry
+      [:span.label "Created On:"] (fmt-date (:created_on info))]
+     [:div.entry
+      [:span.label "Creator:"] (:email_addr info)]
+     [:div.entry
+      [:a { :href (sheet-url id)} "Entry"]]
+     [:div.entry
+      [:a { :href (sheet-summary-url id)} "Summary"]]]))
 
 (defn group-summary [ summary ]
   (reduce (fn [ out s-entry ]
@@ -134,20 +139,12 @@
           0
           summary))
 
-(defn render-sheet-header [ info ]
-  [:div.sheet-header
-   [:span.entry
-    [:span.label "Created On:"] (fmt-date (:created_on info))]
-   [:span.entry
-    [:span.label "Creator:"] (:email_addr info)]])
 
 (defn render-sheet-summary [id error-msg init-vals ]
-  (let [info (data/count-sheet-info id)
-        summary (data/count-sheet-summary id)
+  (let [summary (data/count-sheet-summary id)
         summary-data (group-summary summary)]
     (view/render-page {:page-title "Count Sheet"
                        :sidebar (render-sheet-sidebar id)}
-                      (render-sheet-header info)
                       
                       [:h1 "Summary"]
                       [:table
@@ -202,23 +199,20 @@
    ""))
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
-  (let [ info (data/count-sheet-info sheet-id) ]
-    (view/render-page {:page-title "Count Sheet"
-                       :include-js [ "/petros-sheet.js" ]
-                       :sidebar (render-sheet-sidebar sheet-id)}
-                      (render-sheet-header info)
-                      [:table.form.entries
-                       (table-head "Contributor" "Category" "Amount" "Check Number" "Notes" "")
-                       (map #(if (and (parsable-integer? edit-item)
-                                      (== (:item_id %) (parsable-integer? edit-item)))
-                               (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
-                               (item-display-row sheet-id %))
-                            (data/all-count-sheet-deposits sheet-id))                       
-                       (if edit-item
-                         [:tr { :class "clickable-row edit-row" :data-href (str "/sheet/" sheet-id )}
-                          [:td {:colspan "6"} "Add new item..."]]
-                         (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))
-])))
+  (view/render-page {:page-title "Count Sheet"
+                     :include-js [ "/petros-sheet.js" ]
+                     :sidebar (render-sheet-sidebar sheet-id)}
+                    [:table.form.entries
+                     (table-head "Contributor" "Category" "Amount" "Check Number" "Notes" "")
+                     (map #(if (and (parsable-integer? edit-item)
+                                    (== (:item_id %) (parsable-integer? edit-item)))
+                             (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
+                             (item-display-row sheet-id %))
+                          (data/all-count-sheet-deposits sheet-id))                       
+                     (if edit-item
+                       [:tr { :class "clickable-row edit-row" :data-href (str "/sheet/" sheet-id )}
+                        [:td {:colspan "6"} "Add new item..."]]
+                       (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))]))
 
 
 (defn accept-integer [ obj message ]

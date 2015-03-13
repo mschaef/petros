@@ -51,26 +51,21 @@ body {
     overflow-x: hidden;
 }
 
-div.sheet-header {
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-}
-
 div.sheet-header span.entry {
     padding-right: 1em;
 }
 
-div.sheet-header span.entry span.label {
+div#sidebar div.content div.entry span.label {
     font-weight: bold;
     padding-right: 0.25em;
 }
 
-div.sheet-links {
+div#sidebar div.content {
     padding-top: 0.5em;
     padding-left: 1em;
 }
 
-div.sheet-links div.link {
+div#sidebar div.content div.entry {
     padding-top: 0.25em;
     padding-bottom: 0.25em;
 }
