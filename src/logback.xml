@@ -2,7 +2,7 @@
 
  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%-4r [%t] %-5p %logger - %msg%n</pattern>
+      <pattern>%date{ISO8601} %p %logger{20} - %msg%n</pattern>
     </encoder>
   </appender>
 
