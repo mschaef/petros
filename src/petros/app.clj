@@ -81,7 +81,7 @@
 
 (defn table-row [ & tds ]
   (let [ [ attrs tds ]
-         (if (map? tds)
+         (if (map? (first tds))
            [ (first tds) (rest tds) ]
            [ {} tds ])]
     `[:tr ~attrs ~@(map (fn [ td ] [:td td]) tds)]))
@@ -209,13 +209,16 @@
                       (render-sheet-header info)
                       [:table.form.entries
                        (table-head "Contributor" "Category" "Amount" "Check Number" "Notes" "")
-                       (unless edit-item
-                         (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))
                        (map #(if (and (parsable-integer? edit-item)
                                       (== (:item_id %) (parsable-integer? edit-item)))
                                (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
                                (item-display-row sheet-id %))
-                            (data/all-count-sheet-deposits sheet-id))])))
+                            (data/all-count-sheet-deposits sheet-id))                       
+                       (if edit-item
+                         [:tr { :class "clickable-row edit-row" :data-href (str "/sheet/" sheet-id )}
+                          [:td {:colspan "6"} "Add new item..."]]
+                         (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))
+])))
 
 
 (defn accept-integer [ obj message ]

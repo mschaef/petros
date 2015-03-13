@@ -88,15 +88,25 @@ table.entries thead tr {
 table.entries tr {
     border-top: 1px solid #c0c0c0;
     border-bottom: 1px solid #c0c0c0;
-    
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
 }
 
 table.entries td {
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+}
+
+table.entries tr.edit-row {
+    font-style: italic;        
+    text-align: center;
+    background: #e0e0e0;
+}
+
+table.entries tr.edit-row td {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
 }
+
+table.entries tr { text-align: center; }
 
 div#sidebar {
     padding-top: 3em;
