@@ -181,8 +181,7 @@
 (defn item-edit-row [ sheet-id error-msg init-vals post-target cancel-target]
   (list
    (form/form-to { } [:post post-target]
-                 (table-row ""
-                            (form/text-field { } "contributor" (:contributor init-vals))
+                 (table-row (form/text-field { } "contributor" (:contributor init-vals))
                             (category-selector { } "category_id" (:category_id init-vals))
                             (form/text-field { } "amount" (:amount init-vals))
                             (form/text-field { } "check_number" (:check_number init-vals))
@@ -194,15 +193,13 @@
      [:tr [:td {:colspan "8"} error-msg]])))
 
 (defn item-display-row [ sheet-id dep-item ]
-  (table-row [:a {:href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
-              icon-pencil]
-             (:contributor dep-item)
-             (:category_name dep-item)
-             (fmt-ccy (:amount dep-item))
-             (or (:check_number dep-item) "Cash")
-             (:notes dep-item)
-             ""
-             ))
+  (table-row { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
+   (:contributor dep-item)
+   (:category_name dep-item)
+   (fmt-ccy (:amount dep-item))
+   (or (:check_number dep-item) "Cash")
+   (:notes dep-item)
+   ""))
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
   (let [ info (data/count-sheet-info sheet-id) ]
@@ -211,7 +208,7 @@
                        :sidebar (render-sheet-sidebar sheet-id)}
                       (render-sheet-header info)
                       [:table.form.entries
-                       (table-head "" "Contributor" "Category" "Amount" "Check Number" "Notes" "")
+                       (table-head "Contributor" "Category" "Amount" "Check Number" "Notes" "")
                        (unless edit-item
                          (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))
                        (map #(if (and (parsable-integer? edit-item)
