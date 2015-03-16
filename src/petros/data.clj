@@ -100,7 +100,7 @@
                    " WHERE di.count_sheet_id=?"
                    "   AND di.contributor_id=c.contributor_id"
                    "   AND di.category_id=cat.category_id"
-                   " ORDER BY di.item_id DESC")
+                   " ORDER BY di.item_id")
               sheet-id]))
 
 (defn count-sheet-summary [ sheet-id ]

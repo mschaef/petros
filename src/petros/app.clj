@@ -111,7 +111,9 @@
 (defn category-selector [ attrs id val ]
   [:select (merge attrs { :name id })
    (map (fn [ info ]
-          [:option { :value (:category_id info)}
+          [:option (assoc-if { :value (:category_id info) }
+                             (== (:category_id info) (parsable-integer? val))
+                             :selected ())
            (:name info)])
         (data/all-categories))])
 
@@ -244,8 +246,8 @@
     (data/add-count-sheet (core/current-user-id))
     (ring/redirect "/"))
 
-  (GET "/sheet/:sheet-id" { { sheet-id :sheet-id edit-item :edit-item } :params }
-    (render-sheet sheet-id nil {} edit-item))
+  (GET "/sheet/:sheet-id" { { sheet-id :sheet-id edit-item :edit-item last-category-id :last_category_id } :params }
+    (render-sheet sheet-id nil { :category_id last-category-id} edit-item))
 
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
     (render-sheet-summary sheet-id nil {}))
@@ -283,6 +285,6 @@
                           (accept-amount amount             "Invalid amount")
                           (accept-check-number check-number "Invalid check number")
                           (accept-notes notes               "Invalid notes")) 
-        (ring/redirect (sheet-url sheet-id))))))
+        (ring/redirect (str (sheet-url sheet-id) "?last_category_id=" category_id))))))
 
 
