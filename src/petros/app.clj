@@ -112,7 +112,9 @@
   [:select (merge attrs { :name id })
    (map (fn [ info ]
           [:option (assoc-if { :value (:category_id info) }
-                             (== (:category_id info) (parsable-integer? val))
+                             (if-let [ id (parsable-integer? val)]
+                               (== (:category_id info) id)
+                               false)
                              :selected ())
            (:name info)])
         (data/all-categories))])
@@ -120,6 +122,8 @@
 (defn render-sheet-sidebar [ id ]
   (let [info (data/count-sheet-info id)]
     [:div.content
+     [:div.entry
+      [:span.label "Total:"] (fmt-ccy (:total_amount info))]
      [:div.entry
       [:span.label "Created On:"] (fmt-date (:created_on info))]
      [:div.entry

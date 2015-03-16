@@ -1,6 +1,7 @@
 (ns petros.data
   (:use petros.util)
-  (:require [clojure.java.jdbc :as jdbc]
+  (:require [clojure.tools.logging :as log]
+            [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]))
 
 (def db-connection (sql-file/open-hsqldb-file-conn "petros-db"  "petros" 0))
@@ -88,9 +89,11 @@
 
 (defn count-sheet-info [ sheet-id ]
   (query-first *db*
-               [(str "SELECT cs.count_sheet_id, cs.created_on, cs.final_on, u.email_addr"
-                     "  FROM (count_sheet cs JOIN user u ON u.user_id = cs.creator_user_id)"
-                     "  WHERE count_sheet_id=?")
+               [(str "SELECT cs.count_sheet_id, cs.created_on, cs.final_on, u.email_addr, sum(di.amount) as total_amount"
+                     "  FROM (count_sheet cs JOIN user u ON u.user_id = cs.creator_user_id) "
+                     "  LEFT JOIN deposit_item di ON cs.count_sheet_id = di.count_sheet_id"
+                     "  WHERE count_sheet_id=?"
+                     " GROUP BY cs.count_sheet_id, cs.created_on, cs.final_on, u.email_addr")
                 sheet-id]))
 
 (defn all-count-sheet-deposits [ sheet-id ]
