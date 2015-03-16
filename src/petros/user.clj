@@ -1,7 +1,8 @@
 (ns petros.user
   (:use petros.util
         compojure.core)
-  (:require [cemerick.friend.credentials :as credentials]
+  (:require [clojure.tools.logging :as log]
+            [cemerick.friend.credentials :as credentials]
             [ring.util.response :as ring]
             [cemerick.friend :as friend]
             [hiccup.form :as form]
@@ -63,6 +64,7 @@
 
    :else
    (do
+     (log/info "Creating user: " email-addr)
      (create-user email-addr (credentials/hash-bcrypt password))
      (ring/redirect "/"))))
 

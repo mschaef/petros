@@ -247,13 +247,17 @@
     (render-home-page))
 
   (POST "/" []
-    (data/add-count-sheet (core/current-user-id))
-    (ring/redirect "/"))
+    (let [ user-id (core/current-user-id) ]
+      (log/info "Adding count-sheet: " user-id)
+      (data/add-count-sheet (core/current-user-id))
+      (ring/redirect "/")))
 
   (GET "/sheet/:sheet-id" { { sheet-id :sheet-id edit-item :edit-item last-category-id :last_category_id } :params }
+    (log/info "Displaying sheet: " sheet-id)
     (render-sheet sheet-id nil { :category_id last-category-id} edit-item))
 
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
+    (log/info "Displaying sheet summary: " sheet-id)
     (render-sheet-summary sheet-id nil {}))
 
   (POST "/item/:item-id" { params :params }
@@ -264,7 +268,7 @@
             check-number :check_number
             notes :notes} params
             sheet-id (data/deposit-count-sheet-id item-id)]
-      (log/info "update line item:" params) 
+      (log/info "Updating deposit: " params)
       (with-validation #(render-sheet sheet-id % params item-id)
         (data/update-deposit (accept-integer item-id           "Invalid item-id")
                              contributor
@@ -281,7 +285,7 @@
             amount :amount
             check-number :check_number
             notes :notes} params ]
-      (log/info "add line item:" params) 
+      (log/info "Adding deposit: " params)
       (with-validation #(render-sheet sheet-id % params nil)
         (data/add-deposit (accept-integer sheet-id          "Invalid sheet-id")
                           contributor

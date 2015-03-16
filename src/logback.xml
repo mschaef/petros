@@ -6,7 +6,7 @@
     </encoder>
   </appender>
 
-  <logger name="petros.handler" level="DEBUG"/>
+  <logger name="petros.app" level="INFO"/>
 
   <root level="INFO">
     <appender-ref ref="CONSOLE"/>
