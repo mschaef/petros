@@ -1,8 +1,12 @@
 * Release 1
 ** TODO Delete entry from count sheet.
-** TODO Display Count sheet in report format
-** TODO Display attribution sheet in report format
+** TODO Autocomplete of contributor
+** TODO e-Mail address verification
+** TODO Finalization of pledge sheets
+** TODO Secure finalized pledge sheets from view.
 * Done
+** DONE Display Count sheet in report format
+** DONE Display attribution sheet in report format
 ** DONE Tie count sheet entry to contributor.
 ** DONE Validation logic for line item entry.
 ** DONE Add category to count sheet entry
