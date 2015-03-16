@@ -187,7 +187,7 @@
                              [:button { :type "submit" } icon-check ]
                              [:a {:href cancel-target} icon-x])))
    (when error-msg
-     [:tr [:td {:colspan "8"} error-msg]])))
+     [:tr [:td {:class "error-message" :colspan "8"} error-msg]])))
 
 (defn item-display-row [ sheet-id dep-item ]
   (table-row { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
