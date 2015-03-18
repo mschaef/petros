@@ -4,12 +4,13 @@
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]))
 
-(def db-connection (sql-file/open-hsqldb-file-conn "petros-db"  "petros" 0))
+(def db-connection
+  (delay (sql-file/open-hsqldb-file-conn (config-property "db.subname" "petros-db")  "petros" 0)))
 
 (def ^:dynamic *db* nil)
 
 (defmacro with-db-connection [ & body ]
-  `(binding [ *db* db-connection ]
+  `(binding [ *db* @db-connection ]
      ~@body))
 
 (defmacro with-transaction [ & body ]
