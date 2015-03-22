@@ -53,9 +53,12 @@
                                   {:name name}))))
 
 (defn intern-contributor [ name ]
-  (with-transaction
-    (or (contributor-id name)
-        (add-contributor name))))
+  (let [ name (.trim (or name "")) ]
+    (if (= 0 (.length name))
+      nil
+      (with-transaction
+        (or (contributor-id name)
+            (add-contributor name))))))
 
 ;;; category
 
@@ -100,10 +103,9 @@
 (defn all-count-sheet-deposits [ sheet-id ]
   (query-all *db*
              [(str "SELECT c.name as contributor, di.amount, di.notes, di.check_number, cat.name as category_name, cat.category_id as category_id, di.item_id"
-                   "  FROM deposit_item di, contributor c, category cat"
+                   "  FROM (deposit_item di JOIN category cat ON di.category_id=cat.category_id)"
+                   "    LEFT JOIN contributor c ON di.contributor_id=c.contributor_id"
                    " WHERE di.count_sheet_id=?"
-                   "   AND di.contributor_id=c.contributor_id"
-                   "   AND di.category_id=cat.category_id"
                    " ORDER BY di.item_id")
               sheet-id]))
 
@@ -127,7 +129,7 @@
 (defn add-deposit [ sheet-id contributor-name category-id amount check-number notes ]
   (jdbc/insert! *db* :deposit_item
                 {:count_sheet_id sheet-id
-                 :contributor_id (intern-contributor contributor-name)
+                 :contributor_id (log/spy :error (intern-contributor contributor-name))
                  :amount amount
                  :check_number check-number
                  :notes notes
