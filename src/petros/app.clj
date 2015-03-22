@@ -271,8 +271,8 @@
   (POST "/" []
     (let [ user-id (core/current-user-id) ]
       (log/info "Adding count-sheet: " user-id)
-      (data/add-count-sheet (core/current-user-id))
-      (ring/redirect "/")))
+      (let [ sheet-id (data/add-count-sheet (core/current-user-id))]
+        (ring/redirect (sheet-url sheet-id)))))
 
   (GET "/sheet/:sheet-id" { { sheet-id :sheet-id edit-item :edit-item last-category-id :last_category_id } :params }
     (log/info "Displaying sheet: " sheet-id)
