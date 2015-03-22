@@ -8,11 +8,6 @@
 
 (def app-name "Petros")
 
-(def img-show-list
-     [:img { :src "/list_24x21.png" :class "show-list"
-            :width 24 :height 21
-            :alt "Show List"}])
-
 (defn logout-button []
   [:span#logout
    [:a { :href "/logout"} "[logout]"]])

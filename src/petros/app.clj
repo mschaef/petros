@@ -93,10 +93,11 @@
   (str "/sheet/" sheet-id "/summary"))
 
 (defn render-home-page []
-  (view/render-page {:page-title "Petros Count Sheets"
-                     :sidebar (form/form-to [:post "/"]
-                                            [:input {:type "submit"
-                                                     :value "Create Sheet"}])}
+  (view/render-page {:page-title "Count Sheets"
+                     :sidebar [:div.content
+                               (form/form-to [:post "/"]
+                                             [:input {:type "submit"
+                                                      :value "Create Sheet"}])]}
                      [:table
                       (table-head "Creator" "Created On" "Total Amount" "" "")
                       (map #(let [ id (:count_sheet_id %) ]
@@ -104,7 +105,7 @@
                                          (fmt-date (:created_on %))
                                          (fmt-ccy (:total_amount %))
                                          [:a { :href (sheet-url id) } "Entry"]
-                                         [:a { :href (sheet-summary-url id) } "Summary"]))
+                                         [:a { :href (sheet-summary-url id) } "Sheet Summary"]))
                            (data/all-count-sheets))]))
 
 
@@ -122,16 +123,20 @@
 (defn render-sheet-sidebar [ id ]
   (let [info (data/count-sheet-info id)]
     [:div.content
+     [:div.total
+      (fmt-ccy (:total_amount info))]
      [:div.entry
-      [:span.label "Total:"] (fmt-ccy (:total_amount info))]
+      (fmt-date (:created_on info))]
      [:div.entry
-      [:span.label "Created On:"] (fmt-date (:created_on info))]
+      (:email_addr info)]
+     [:div.vspace]     
      [:div.entry
-      [:span.label "Creator:"] (:email_addr info)]
+      [:a { :href (sheet-url id)} "Edit Contributions"]]
      [:div.entry
-      [:a { :href (sheet-url id)} "Entry"]]
+      [:a { :href (sheet-summary-url id)} "Sheet Summary"]]
+     [:div.vspace]
      [:div.entry
-      [:a { :href (sheet-summary-url id)} "Summary"]]]))
+      [:a { :href "/"} "Home"]]]))
 
 (defn group-summary [ summary ]
   (reduce (fn [ out s-entry ]
@@ -147,9 +152,10 @@
 
 
 (defn render-sheet-summary [id error-msg init-vals ]
-  (let [summary (data/count-sheet-summary id)
+  (let [info (data/count-sheet-info id)
+        summary (data/count-sheet-summary id)
         summary-data (group-summary summary)]
-    (view/render-page {:page-title "Count Sheet"
+    (view/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)) )
                        :sidebar (render-sheet-sidebar id)}
                       
                       [:h1 "Summary"]
@@ -168,7 +174,7 @@
                                   (fmt-ccy (total-amounts summary)))]
                     
                       [:h1 "Checks"]
-                      [:table
+                      [:table.checks
                        (table-head "Contributor" "Category" "Amount" "Check Number" "Notes")
                        (let [ checks (filter :check_number
                                              (data/all-count-sheet-deposits id))]
@@ -179,7 +185,7 @@
                                             (or (:check_number %) "Cash")
                                             (:notes %))
                                 checks)
-                           [:tr [:td { :colspan "5" } "No Checks"]]))])))
+                           [:tr [:td.no-checks { :colspan "5" } "No Checks"]]))])))
 
 (defn item-edit-row [ sheet-id error-msg init-vals post-target cancel-target]
   (list
@@ -205,20 +211,28 @@
    ""))
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
-  (view/render-page {:page-title "Count Sheet"
-                     :include-js [ "/petros-sheet.js" ]
-                     :sidebar (render-sheet-sidebar sheet-id)}
-                    [:table.form.entries
-                     (table-head "Contributor" "Category" "Amount" "Check Number" "Notes" "")
-                     (map #(if (and (parsable-integer? edit-item)
-                                    (== (:item_id %) (parsable-integer? edit-item)))
-                             (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
-                             (item-display-row sheet-id %))
-                          (data/all-count-sheet-deposits sheet-id))                       
-                     (if edit-item
-                       [:tr { :class "clickable-row edit-row" :data-href (str "/sheet/" sheet-id )}
-                        [:td {:colspan "6"} "Add new item..."]]
-                       (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))]))
+  (let [ info (data/count-sheet-info sheet-id) ]
+    (view/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
+                       :include-js [ "/petros-sheet.js" ]
+                       :sidebar (render-sheet-sidebar sheet-id)}
+                      [:table.form.entries
+                       (table-head "Contributor" "Category" "Amount" "Check Number" "Notes" "")
+                       (map #(if (and (parsable-integer? edit-item)
+                                      (== (:item_id %) (parsable-integer? edit-item)))
+                               (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
+                               (item-display-row sheet-id %))
+                            (data/all-count-sheet-deposits sheet-id))                       
+                       (if edit-item
+                         [:tr { :class "clickable-row edit-row" :data-href (str "/sheet/" sheet-id )}
+                          [:td {:colspan "6"} "Add new item..."]]
+                         (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))]
+                      [:div.help
+                       [:p
+                        [:span.label "Contributor"] " - "
+                        "Leave this blank for cash or other contributions without an attribution."]
+                       [:p
+                        [:span.label "Check Number"] " - "
+                        "Leave this blank for cash contributions."]])))
 
 
 (defn accept-integer [ obj message ]

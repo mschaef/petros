@@ -58,13 +58,17 @@ body {
     overflow-x: hidden;
 }
 
-div.sheet-header span.entry {
-    padding-right: 1em;
+div#sidebar div.entry {
+    text-align: center;
 }
 
 div#sidebar div.content div.entry span.label {
     font-weight: bold;
     padding-right: 0.25em;
+}
+
+div#sidebar div.vspace {
+    height: 1em;
 }
 
 div#sidebar div.content {
@@ -76,6 +80,15 @@ div#sidebar div.content div.entry {
     padding-top: 0.25em;
     padding-bottom: 0.25em;
 }
+
+div#sidebar div.content div.total {
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+}
+
 
 
 table.entries.form {
@@ -315,8 +328,8 @@ div#footer {
     clear: both;
     background: white;
 
-    padding-top: 2em;
-    //border-top: 1px solid #c0c0c0;
+    padding-top: 0.5em;
+    border-top: 1px solid #c0c0c0;
     color: #404040;
 
     text-align: center;
@@ -410,6 +423,15 @@ table.form {
     border-collapse: separate;
 }
 
+table.checks {
+    width: 99%;
+}
+
+table.checks td.no-checks {
+    font-style: italic;
+    text-align: center;
+}
+
 .simple-border {
    border-style: solid;
    border-width: 1px;
@@ -421,3 +443,19 @@ tr.even {
     background: #e0e0ff;
 }
 
+div.help {
+    width: 98%;
+    margin-top: 1em;
+    padding: 0.5em;
+
+    background : #f0f0f0;
+}
+
+div.help p {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+}
+
+div.help span.label {
+    font-weight: bold;
+}
