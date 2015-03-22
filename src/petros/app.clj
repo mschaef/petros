@@ -175,7 +175,14 @@
                     
                       [:h1 "Checks"]
                       [:table.checks
-                       (table-head "Contributor" "Category" "Amount" "Check Number" "Notes")
+                       [:thead
+                        [:tr
+                         [:th "Contributor"]
+                         [:th "Category"]
+                         [:th "Amount"]
+                         [:th "Check Number"]
+                         [:th.full-width "Notes"]]]
+
                        (let [ checks (filter :check_number
                                              (data/all-count-sheet-deposits id))]
                          (if (> (count checks) 0)
@@ -202,13 +209,14 @@
      [:tr [:td {:class "error-message" :colspan "8"} error-msg]])))
 
 (defn item-display-row [ sheet-id dep-item ]
+  (log/error dep-item)
   (table-row { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
-   (:contributor dep-item)
-   (:category_name dep-item)
-   (fmt-ccy (:amount dep-item))
-   (or (:check_number dep-item) "Cash")
-   (:notes dep-item)
-   ""))
+             (:contributor dep-item)
+             (:category_name dep-item)
+             (fmt-ccy (:amount dep-item))
+             (or (:check_number dep-item) "Cash")
+             (:notes dep-item)
+             ""))
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
   (let [ info (data/count-sheet-info sheet-id) ]

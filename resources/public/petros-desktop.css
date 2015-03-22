@@ -459,3 +459,7 @@ div.help p {
 div.help span.label {
     font-weight: bold;
 }
+
+th.full-width {
+    width: 100%;
+}

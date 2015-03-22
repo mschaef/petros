@@ -1,4 +1,4 @@
-(defproject petros "0.1.0-SNAPSHOT"
+(defproject petros "0.1.1-SNAPSHOT"
   :description "Petros - Utility for Automating Plate Count"
   :license { :name "Copyright East Coast Toolworks (c) 2015"}
 
