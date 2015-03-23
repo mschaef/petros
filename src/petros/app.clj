@@ -13,7 +13,6 @@
 
 (def icon-pencil [:i {:class "fa fa-pencil fa-lg icon-pencil"}])
 (def icon-check  [:i {:class "fa fa-check fa-lg icon-check"}])
-(def icon-x  [:i {:class "fa fa-times fa-lg icon-x"}])
 
 (defn ensure-bigdec [ val ]
   (if (= (.getClass val) java.math.BigDecimal)
@@ -209,9 +208,7 @@
                             (form/text-field { } "amount" (:amount init-vals))
                             (form/text-field { } "check_number" (:check_number init-vals))
                             (form/text-field { :style "width:100%"} "notes" (:notes init-vals))
-                            (list
-                             [:button { :type "submit" } icon-check ]
-                             [:a {:href cancel-target} icon-x])))
+                            [:button { :type "submit" } icon-check ]))
    (when error-msg
      [:tr [:td {:class "error-message" :colspan "8"} error-msg]])))
 
