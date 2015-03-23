@@ -110,6 +110,10 @@ table.entries td {
     padding-bottom: 0.25em;
 }
 
+table.entries tr.clickable-row td {
+    cursor: pointer;
+}
+
 table.entries tr.edit-row {
     font-style: italic;        
     text-align: center;
@@ -131,15 +135,12 @@ div#sidebar {
 
 div#contents {
     padding-top: 3em;
-    margin-left: 240px;
     padding-bottom: 10px;
     background: white;
 }
 
-div#page-contents {
-    padding-top: 3em;
-    padding-bottom: 10px;
-    background: white;
+div#contents.with-sidebar {
+    margin-left: 240px;
 }
 
 table.item-list td {
@@ -151,6 +152,7 @@ table.item-list tr.item-row {
     border-top: 1px solid #e0e0e0;
 }
 
+
 div.drag-item {
     padding: 0.2em;
     border: 2px solid black;
@@ -161,6 +163,34 @@ table.item-list tr.item-row td.drag-handle {
     padding: 0px;
     min-width: 10px;
     background: #e0e0e0;
+}
+
+div.main-menu {
+    width: 100%;
+    text-align: center;
+}
+
+div.entry {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+div.main-menu A {
+    width: 50%;
+}
+
+div.main-menu input {
+    width: 50%;
+    border: 1px solid black;
+    line-height: 3em;
+    cursor: pointer;
+    background: #e0e0e0;
+    transition: all 0.1s ease 0s;
+}
+
+
+div.main-menu input:hover {
+    background: #c0c0c0;;
 }
 
 table.item-list tr.item-row.first-row {
@@ -176,6 +206,15 @@ body {
 
 A { 
   text-decoration: none;
+} 
+
+
+A:link { 
+  color: blue;
+} 
+
+A:visited { 
+  color: blue
 } 
 
 table.list-list {
@@ -219,14 +258,6 @@ table.list-list tr.selected A {
     color: red;
 }
 
-table.list-list A:link {
-    color: black;
-}
-
-table.list-list A:visited {
-    color: black;
-}
-
 table.list-list tr.drop-hover {
     background: #808080;
 }
@@ -254,19 +285,6 @@ table.item-list td.item-description {
     padding-left: 0.67em;
 }
 
-A {
-  text-decoration: none;
-}
-
-A:link { 
-  color: blue;
-} 
-
-A:visited { 
-  color: blue
-} 
-
-
 table.item-list {
     width: 100%;
     border-collapse: collapse;
@@ -284,7 +302,6 @@ span#warning {
 }
 
 div#header A {
-    color: black;
     font-weight: bold;
 }
 

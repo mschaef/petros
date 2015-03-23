@@ -42,16 +42,10 @@
              (unless (nil? username)
                [:div.right
                 [:span username " - " (logout-button)]])]
-
-            (if sidebar
-              (list
-               [:div#overlay
-                [:div#sidebar sidebar]]
-               [:div.wrapper
-                [:div#contents
-                 contents]])
-              [:div#page-contents
-               contents])
+            (when sidebar
+              [:div#sidebar sidebar])
+            [:div#contents {:class (if sidebar "with-sidebar" "")}
+             contents]
             (render-footer username)]])))
 
 

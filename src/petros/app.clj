@@ -93,11 +93,19 @@
   (str "/sheet/" sheet-id "/summary"))
 
 (defn render-home-page []
-  (view/render-page {:page-title "Count Sheets"
-                     :sidebar [:div.content
-                               (form/form-to [:post "/"]
-                                             [:input {:type "submit"
-                                                      :value "Create Sheet"}])]}
+  (view/render-page {:page-title "Home" }
+
+                    [:div.main-menu
+                     [:div.entry
+                      (form/form-to [:post "/"]
+                                    [:input {:type "submit"
+                                             :value "Create a New Count Sheet"}])]
+                     [:div.entry
+                      [:a {:href "/sheets"}
+                       "See Existing Count Sheets"]]]))
+
+(defn render-sheet-list []
+  (view/render-page {:page-title "Count Sheets" }
                      [:table
                       (table-head "Creator" "Created On" "Total Amount" "" "")
                       (map #(let [ id (:count_sheet_id %) ]
@@ -107,7 +115,6 @@
                                          [:a { :href (sheet-url id) } "Entry"]
                                          [:a { :href (sheet-summary-url id) } "Sheet Summary"]))
                            (data/all-count-sheets))]))
-
 
 (defn category-selector [ attrs id val ]
   [:select (merge attrs { :name id })
@@ -232,7 +239,9 @@
                             (data/all-count-sheet-deposits sheet-id))                       
                        (if edit-item
                          [:tr { :class "clickable-row edit-row" :data-href (str "/sheet/" sheet-id )}
-                          [:td {:colspan "6"} "Add new item..."]]
+                          [:td {:colspan "6"}
+                           [:a {:href (sheet-url sheet-id)}
+                            "Add new item..."]]]
                          (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))]
                       [:div.help
                        [:p
@@ -268,6 +277,9 @@
   (GET "/" []
     (render-home-page))
 
+  (GET "/sheets" []
+    (render-sheet-list))
+  
   (POST "/" []
     (let [ user-id (core/current-user-id) ]
       (log/info "Adding count-sheet: " user-id)
