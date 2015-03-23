@@ -60,20 +60,20 @@
         (or (contributor-id name)
             (add-contributor name))))))
 
-;;; category
+;;; account
 
-(defn all-categories [ ]
+(defn all-accounts [ ]
   (query-all *db*
-             [(str "SELECT category_id, name"
-                   "  FROM category"
-                   " ORDER BY category_id")]))
+             [(str "SELECT account_id, name"
+                   "  FROM account"
+                   " ORDER BY account_id")]))
 
-(defn all-category-names [ ]
+(defn all-account-names [ ]
   (map :name
        (query-all *db*
                   [(str "SELECT name"
-                        "  FROM category"
-                        " ORDER BY category_id")])))
+                        "  FROM account"
+                        " ORDER BY account_id")])))
 
 ;;; count_sheet
 
@@ -102,8 +102,8 @@
 
 (defn all-count-sheet-deposits [ sheet-id ]
   (query-all *db*
-             [(str "SELECT c.name as contributor, di.amount, di.notes, di.check_number, cat.name as category_name, cat.category_id as category_id, di.item_id"
-                   "  FROM (deposit_item di JOIN category cat ON di.category_id=cat.category_id)"
+             [(str "SELECT c.name as contributor, di.amount, di.notes, di.check_number, acct.name as account_name, acct.account_id as account_id, di.item_id"
+                   "  FROM (deposit_item di JOIN account acct ON di.account_id=acct.account_id)"
                    "    LEFT JOIN contributor c ON di.contributor_id=c.contributor_id"
                    " WHERE di.count_sheet_id=?"
                    " ORDER BY di.item_id")
@@ -112,11 +112,11 @@
 (defn count-sheet-summary [ sheet-id ]
   (map #(assoc % :type (if (= (:type %) 0) :check :cash)) 
        (query-all *db*
-                  [(str "SELECT cat.name as category, casewhen(di.check_number is null, 1, 0) as type, sum(di.amount) as total"
-                        "  FROM category cat JOIN deposit_item di ON di.category_id=cat.category_id"
+                  [(str "SELECT acct.name as account, casewhen(di.check_number is null, 1, 0) as type, sum(di.amount) as total"
+                        "  FROM account acct JOIN deposit_item di ON di.account_id=acct.account_id"
                         " WHERE di.count_sheet_id=?"
-                        " GROUP BY category, type"
-                        " ORDER BY category, type")
+                        " GROUP BY account, type"
+                        " ORDER BY account, type")
                    sheet-id])))
 
 (defn deposit-count-sheet-id [ deposit-id ]
@@ -126,20 +126,20 @@
                       " WHERE item_id=?")
                  deposit-id]))
 
-(defn add-deposit [ sheet-id contributor-name category-id amount check-number notes ]
+(defn add-deposit [ sheet-id contributor-name account-id amount check-number notes ]
   (jdbc/insert! *db* :deposit_item
                 {:count_sheet_id sheet-id
                  :contributor_id (log/spy :error (intern-contributor contributor-name))
                  :amount amount
                  :check_number check-number
                  :notes notes
-                 :category_id category-id}))
+                 :account_id account-id}))
 
-(defn update-deposit [ deposit-id contributor-name category-id amount check-number notes ]
+(defn update-deposit [ deposit-id contributor-name account-id amount check-number notes ]
   (jdbc/update! *db* :deposit_item
                 {:contributor_id (intern-contributor contributor-name)
                  :amount amount
                  :check_number check-number
                  :notes notes
-                 :category_id category-id}
+                 :account_id account-id}
                 ["item_id=?" deposit-id]))

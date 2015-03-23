@@ -12,20 +12,21 @@ CREATE CACHED TABLE count_sheet (
   final_on TIMESTAMP NULL
 );
 
-CREATE CACHED TABLE category (
-  category_id BIGINT IDENTITY,
+CREATE CACHED TABLE account (
+  account_id BIGINT IDENTITY,
   name VARCHAR(32) NOT NULL
 );
 
-INSERT INTO category(name) values('Pledge');
-INSERT INTO category(name) values('Altar Guild');
-INSERT INTO category(name) values('Holiday Flowers');
-INSERT INTO category(name) values('Capital Campaign');
-INSERT INTO category(name) values('Food Pantry');
-INSERT INTO category(name) values('J2A - Youth Trip');
-INSERT INTO category(name) values('Memorial Fund');
-INSERT INTO category(name) values('Rector''s Discretionary');
-INSERT INTO category(name) values('Other (see notes)');
+INSERT INTO account(name) values('Pledge');
+INSERT INTO account(name) values('Altar Guild');
+INSERT INTO account(name) values('Holiday Flowers');
+INSERT INTO account(name) values('Capital Campaign');
+INSERT INTO account(name) values('Food Pantry');
+INSERT INTO account(name) values('J2A - Youth Trip');
+INSERT INTO account(name) values('Memorial Fund');
+INSERT INTO account(name) values('Rector''s Discretionary');
+INSERT INTO account(name) values('Rental Income');
+INSERT INTO account(name) values('Other (see notes)');
 
 CREATE CACHED TABLE contributor (
   contributor_id BIGINT IDENTITY,
@@ -36,7 +37,7 @@ CREATE CACHED TABLE deposit_item (
   item_id BIGINT IDENTITY,
   count_sheet_id BIGINT REFERENCES count_sheet(count_sheet_id),
   contributor_id BIGINT NULL REFERENCES contributor(contributor_id),
-  category_id BIGINT REFERENCES category(category_id),
+  account_id BIGINT REFERENCES account(account_id),
   check_number NUMERIC(10) NULL,
   amount NUMERIC(9,2) NOT NULL,
   notes VARCHAR(1024)

@@ -115,16 +115,16 @@
                                          [:a { :href (sheet-summary-url id) } "Sheet Summary"]))
                            (data/all-count-sheets))]))
 
-(defn category-selector [ attrs id val ]
+(defn account-selector [ attrs id val ]
   [:select (merge attrs { :name id })
    (map (fn [ info ]
-          [:option (assoc-if { :value (:category_id info) }
+          [:option (assoc-if { :value (:account_id info) }
                              (if-let [ id (parsable-integer? val)]
-                               (== (:category_id info) id)
+                               (== (:account_id info) id)
                                false)
                              :selected ())
            (:name info)])
-        (data/all-categories))])
+        (data/all-accounts))])
 
 (defn render-sheet-sidebar [ id ]
   (let [info (data/count-sheet-info id)]
@@ -146,7 +146,7 @@
 
 (defn group-summary [ summary ]
   (reduce (fn [ out s-entry ]
-            (assoc-in out [ (:category s-entry) (:type s-entry) ] (:total s-entry)))
+            (assoc-in out [ (:account s-entry) (:type s-entry) ] (:total s-entry)))
           {}
           summary))
 
@@ -166,14 +166,14 @@
                       
                       [:h1 "Summary"]
                       [:table
-                       (table-head "Category" "Check" "Cash" "Subtotal")
-                       (map (fn [ cat-name ]
-                              (table-row cat-name
-                                         (fmt-ccy (get-in summary-data [ cat-name :check ]) "&nbsp;")
-                                         (fmt-ccy (get-in summary-data [ cat-name :cash ]) "&nbsp;")
-                                         (fmt-ccy (+ (get-in summary-data [ cat-name :check ] 0.0)
-                                                     (get-in summary-data [ cat-name :cash ] 0.0)))))
-                            (data/all-category-names))
+                       (table-head "Account" "Check" "Cash" "Subtotal")
+                       (map (fn [ acct-name ]
+                              (table-row acct-name
+                                         (fmt-ccy (get-in summary-data [ acct-name :check ]) "&nbsp;")
+                                         (fmt-ccy (get-in summary-data [ acct-name :cash ]) "&nbsp;")
+                                         (fmt-ccy (+ (get-in summary-data [ acct-name :check ] 0.0)
+                                                     (get-in summary-data [ acct-name :cash ] 0.0)))))
+                            (data/all-account-names))
                        (table-row "Total"
                                   (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))
                                   (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))
@@ -184,7 +184,7 @@
                        [:thead
                         [:tr
                          [:th "Contributor"]
-                         [:th "Category"]
+                         [:th "Account"]
                          [:th "Amount"]
                          [:th "Check Number"]
                          [:th.full-width "Notes"]]]
@@ -193,7 +193,7 @@
                                              (data/all-count-sheet-deposits id))]
                          (if (> (count checks) 0)
                            (map #(table-row (:contributor %)
-                                            (:category_name %)
+                                            (:account_name %)
                                             (fmt-ccy (:amount %))
                                             (or (:check_number %) "Cash")
                                             (:notes %))
@@ -204,7 +204,7 @@
   (list
    (form/form-to { } [:post post-target]
                  (table-row (form/text-field { } "contributor" (:contributor init-vals))
-                            (category-selector { } "category_id" (:category_id init-vals))
+                            (account-selector { } "account_id" (:account_id init-vals))
                             (form/text-field { } "amount" (:amount init-vals))
                             (form/text-field { } "check_number" (:check_number init-vals))
                             (form/text-field { :style "width:100%"} "notes" (:notes init-vals))
@@ -216,7 +216,7 @@
   (log/error dep-item)
   (table-row { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
              (or (:contributor dep-item) [:span.informational "Unattributed"])
-             (:category_name dep-item)
+             (:account_name dep-item)
              (fmt-ccy (:amount dep-item))
              (or (:check_number dep-item) [:span.informational "Cash"])
              (:notes dep-item)
@@ -228,7 +228,7 @@
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id)}
                       [:table.form.entries
-                       (table-head "Contributor" "Category" "Amount" "Check Number" "Notes" "")
+                       (table-head "Contributor" "Account" "Amount" "Check Number" "Notes" "")
                        (map #(if (and (parsable-integer? edit-item)
                                       (== (:item_id %) (parsable-integer? edit-item)))
                                (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
@@ -283,9 +283,9 @@
       (let [ sheet-id (data/add-count-sheet (core/current-user-id))]
         (ring/redirect (sheet-url sheet-id)))))
 
-  (GET "/sheet/:sheet-id" { { sheet-id :sheet-id edit-item :edit-item last-category-id :last_category_id } :params }
+  (GET "/sheet/:sheet-id" { { sheet-id :sheet-id edit-item :edit-item last-account-id :last_account_id } :params }
     (log/info "Displaying sheet: " sheet-id)
-    (render-sheet sheet-id nil { :category_id last-category-id} edit-item))
+    (render-sheet sheet-id nil { :account_id last-account-id} edit-item))
 
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
     (log/info "Displaying sheet summary: " sheet-id)
@@ -293,7 +293,7 @@
 
   (POST "/item/:item-id" { params :params }
     (let [ {item-id :item-id 
-            category_id :category_id
+            account_id :account_id
             contributor :contributor
             amount :amount
             check-number :check_number
@@ -303,7 +303,7 @@
       (with-validation #(render-sheet sheet-id % params item-id)
         (data/update-deposit (accept-integer item-id           "Invalid item-id")
                              contributor
-                             (accept-integer category_id       "Invalid category")
+                             (accept-integer account_id       "Invalid account")
                              (accept-amount amount             "Invalid amount")
                              (accept-check-number check-number "Invalid check number")
                              (accept-notes notes               "Invalid notes")) 
@@ -311,7 +311,7 @@
 
   (POST "/sheet/:sheet-id" { params :params }
     (let [ {sheet-id :sheet-id 
-            category_id :category_id
+            account_id :account_id
             contributor :contributor
             amount :amount
             check-number :check_number
@@ -320,10 +320,10 @@
       (with-validation #(render-sheet sheet-id % params nil)
         (data/add-deposit (accept-integer sheet-id          "Invalid sheet-id")
                           contributor
-                          (accept-integer category_id       "Invalid category")
+                          (accept-integer account_id       "Invalid account")
                           (accept-amount amount             "Invalid amount")
                           (accept-check-number check-number "Invalid check number")
                           (accept-notes notes               "Invalid notes")) 
-        (ring/redirect (str (sheet-url sheet-id) "?last_category_id=" category_id))))))
+        (ring/redirect (str (sheet-url sheet-id) "?last_account_id=" account_id))))))
 
 
