@@ -44,7 +44,7 @@
                 [:span username " - " (logout-button)]])]
             (when sidebar
               [:div#sidebar sidebar])
-            [:div#contents {:class (if sidebar "with-sidebar" "")}
+            [:div#contents {:class (class-set {"with-sidebar" sidebar})}
              contents]
             (render-footer username)]])))
 

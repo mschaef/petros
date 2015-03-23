@@ -103,3 +103,7 @@
   (throw+ { :type :form-error :message message }))
 
 
+(defn class-set [ classes ]
+  (clojure.string/join " " (map str (filter #(classes %)
+                                            (keys classes)))))
+
