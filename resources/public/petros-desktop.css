@@ -89,7 +89,10 @@ div#sidebar div.content div.total {
     padding-bottom: 0.25em;
 }
 
-
+span.informational {
+    font-style: italic;
+    color: #d0d0d0;
+}
 
 table.entries.form {
     border-collapse: collapse;

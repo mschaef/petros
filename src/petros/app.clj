@@ -218,10 +218,10 @@
 (defn item-display-row [ sheet-id dep-item ]
   (log/error dep-item)
   (table-row { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
-             (or (:contributor dep-item) "Unattributed")
+             (or (:contributor dep-item) [:span.informational "Unattributed"])
              (:category_name dep-item)
              (fmt-ccy (:amount dep-item))
-             (or (:check_number dep-item) "Cash")
+             (or (:check_number dep-item) [:span.informational "Cash"])
              (:notes dep-item)
              ""))
 
