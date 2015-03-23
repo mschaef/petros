@@ -91,6 +91,9 @@
 (defn sheet-summary-url [ sheet-id ]
   (str "/sheet/" sheet-id "/summary"))
 
+(defn sheet-checks-url [ sheet-id ]
+  (str "/sheet/" sheet-id "/checks"))
+
 (defn render-home-page []
   (view/render-page {:page-title "Home" }
 
@@ -126,7 +129,10 @@
            (:name info)])
         (data/all-accounts))])
 
-(defn render-sheet-sidebar [ id ]
+(defn active-classes [ active? ]
+  (class-set {"is-active" active? "is-inactive" (not active?)}))
+
+(defn render-sheet-sidebar [ id mode ]
   (let [info (data/count-sheet-info id)]
     [:div.content
      [:div.total
@@ -136,10 +142,12 @@
      [:div.entry
       (:email_addr info)]
      [:div.vspace]     
-     [:div.entry
+     [:div.menu-entry {:class (active-classes (= mode :entry))}
       [:a { :href (sheet-url id)} "Edit Contributions"]]
-     [:div.entry
+     [:div.menu-entry {:class (active-classes (= mode :summary))}
       [:a { :href (sheet-summary-url id)} "Sheet Summary"]]
+     [:div.menu-entry {:class (active-classes (= mode :checks))}
+      [:a { :href (sheet-checks-url id)} "Checks"]]     
      [:div.vspace]
      [:div.entry
       [:a { :href "/"} "Home"]]]))
@@ -162,10 +170,10 @@
         summary (data/count-sheet-summary id)
         summary-data (group-summary summary)]
     (view/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)) )
-                       :sidebar (render-sheet-sidebar id)}
+                       :sidebar (render-sheet-sidebar id :summary)}
                       
                       [:h1 "Summary"]
-                      [:table
+                      [:table.summary
                        (table-head "Account" "Check" "Cash" "Subtotal")
                        (map (fn [ acct-name ]
                               (table-row acct-name
@@ -177,7 +185,15 @@
                        (table-row "Total"
                                   (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))
                                   (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))
-                                  (fmt-ccy (total-amounts summary)))]
+                                  (fmt-ccy (total-amounts summary)))])))
+
+
+(defn render-sheet-checks [id error-msg init-vals ]
+  (let [info (data/count-sheet-info id)
+        summary (data/count-sheet-summary id)
+        summary-data (group-summary summary)]
+    (view/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)) )
+                       :sidebar (render-sheet-sidebar id :checks)}
                     
                       [:h1 "Checks"]
                       [:table.checks
@@ -187,7 +203,7 @@
                          [:th "Account"]
                          [:th "Amount"]
                          [:th "Check Number"]
-                         [:th.full-width "Notes"]]]
+                         [:th.notes "Notes"]]]
 
                        (let [ checks (filter :check_number
                                              (data/all-count-sheet-deposits id))]
@@ -226,7 +242,7 @@
   (let [ info (data/count-sheet-info sheet-id) ]
     (view/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
                        :include-js [ "/petros-sheet.js" ]
-                       :sidebar (render-sheet-sidebar sheet-id)}
+                       :sidebar (render-sheet-sidebar sheet-id :entry)}
                       [:table.form.entries
                        (table-head "Contributor" "Account" "Amount" "Check Number" "Notes" "")
                        (map #(if (and (parsable-integer? edit-item)
@@ -290,6 +306,10 @@
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
     (log/info "Displaying sheet summary: " sheet-id)
     (render-sheet-summary sheet-id nil {}))
+
+  (GET "/sheet/:sheet-id/checks" [ sheet-id ]
+    (log/info "Displaying sheet checks: " sheet-id)
+    (render-sheet-checks sheet-id nil {}))
 
   (POST "/item/:item-id" { params :params }
     (let [ {item-id :item-id 
