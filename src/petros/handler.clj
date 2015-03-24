@@ -61,7 +61,7 @@
 (def handler (-> site-routes
                  (friend/authenticate {:credential-fn db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
-                 (extend-session-duration 168)
+                 (extend-session-duration 1)
                  (wrap-db-connection)
                  (wrap-request-logging)
                  (handler/site)))
