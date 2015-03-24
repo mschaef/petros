@@ -41,7 +41,7 @@
              page-title
              (unless (nil? username)
                [:div.right
-                [:span username " - " (logout-button)]])]
+                [:span [:a {:href "/user/password"} username] " - " (logout-button)]])]
             (when sidebar
               [:div#sidebar sidebar])
             [:div#contents {:class (class-set {"with-sidebar" sidebar})}

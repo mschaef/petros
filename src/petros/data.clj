@@ -39,6 +39,11 @@
               {:email_addr email-addr
                :password password}))))
 
+(defn set-user-password [ email-addr password ]
+  (jdbc/update! *db* :user
+                { :password password }
+                ["email_addr=?" email-addr]))
+
 ;;; contributor
 
 (defn contributor-id [ name ]

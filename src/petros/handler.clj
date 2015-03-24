@@ -15,23 +15,12 @@
             [cemerick.friend.credentials :as credentials]))
 
 
-(defn get-user-id-by-email [ email ]
-  (if-let [ user-info (data/get-user-by-email email) ]
-    (user-info :user_id)
-    nil))
-
 (def site-routes
   (routes user/public-routes
           (route/resources "/")
-          (friend/wrap-authorize app/app-routes #{::user})
+          (friend/wrap-authorize user/private-routes #{:role-user})
+          (friend/wrap-authorize app/app-routes #{:role-user})
           (route/not-found "Resource Not Found")))
-
-(defn db-credential-fn [ creds ]
-  (let [user-record (data/get-user-by-email (creds :username))]
-    (if (or (nil? user-record)
-            (not (credentials/bcrypt-verify (creds :password) (user-record :password))))
-      nil
-      { :identity (creds :username) :roles #{ ::user }})))
 
 (defn wrap-request-logging [ app ]
   (fn [req]
@@ -59,7 +48,7 @@
       (app req))))
 
 (def handler (-> site-routes
-                 (friend/authenticate {:credential-fn db-credential-fn
+                 (friend/authenticate {:credential-fn core/db-credential-fn
                                        :workflows [(workflows/interactive-form)]})
                  (extend-session-duration 1)
                  (wrap-db-connection)
