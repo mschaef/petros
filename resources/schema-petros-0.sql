@@ -5,10 +5,27 @@ CREATE CACHED TABLE user (
   password VARCHAR(255)
 );
 
+CREATE CACHED TABLE role (
+  role_id BIGINT IDENTITY,
+  role_name VARCHAR(32) NOT NULL
+);
+
+INSERT INTO role(role_name) values('verified');
+INSERT INTO role(role_name) values('accountant');
+INSERT INTO role(role_name) values('administrator');
+
+CREATE CACHED TABLE user_role (
+  user_id BIGINT REFERENCES user(user_id),
+  role_id BIGINT REFERENCES role(role_id)
+);
+
 CREATE CACHED TABLE count_sheet (
   count_sheet_id BIGINT IDENTITY,
+  
   creator_user_id BIGINT REFERENCES user(user_id),
   created_on TIMESTAMP NOT NULL,
+
+  finalizer_user_id BIGINT NULL REFERENCES user(user_id),
   final_on TIMESTAMP NULL
 );
 

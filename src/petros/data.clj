@@ -23,14 +23,36 @@
 (defn all-user-names [ ]
   (map :name (query-all *db* ["select name from user order by name"])))
 
-(defn get-user-by-email [ email-addr ]
-  (query-first *db* ["select * from user where email_addr=?" email-addr]))
 
-(defn user-email-exists? [ email-addr ]
-  (not (nil? (get-user-by-email email-addr))))
+(defn get-user-roles [ user-id ]
+  (set
+   (map #(keyword "petros.role" %)
+        (query-all *db* 
+                   [(str "SELECT role_name"
+                         "  FROM user u, role r, user_role ur"
+                         "  WHERE u.user_id = ur.user_id"
+                         "    AND ur.role_id = r.role_id"
+                         "    AND u.user_id = ?")
+                    user-id]))))
 
-(defn get-user-by-id [ user-id ]
-  (query-first *db* ["select * from user where user_id=?" user-id]))
+(defn- get-role-id [ role-name ]
+  (query-first *db*
+               [(str "SELECT role_id"
+                     "  FROM role"
+                     " WHERE role_name = ?")
+                (name role-name)]))
+
+(defn delete-user-roles [ user-id ]
+  (jdbc/delete! *db* :user_role { :user_id user-id}))
+
+
+(defn set-user-roles [ user-id role-set ]
+  (with-transaction
+    (delete-user-roles user-id)
+    (doseq [ role-id (map get-role-id role-set)]
+      (jdbc/insert! *db* :user_role
+                    {:user_id user-id
+                     :role_id role-id}))))
 
 (defn add-user [ email-addr password ]
   (:user_id (first
@@ -43,6 +65,24 @@
   (jdbc/update! *db* :user
                 { :password password }
                 ["email_addr=?" email-addr]))
+
+
+(defn- enrich-user-with-roles [ user ]
+  (if (nil? user)
+    user
+    (merge user
+           { :roles (get-user-roles (:user_id user))})))
+
+(defn get-user-by-email [ email-addr ]
+  (enrich-user-with-roles
+   (query-first *db* [(str "SELECT *"
+                           "  FROM user"
+                           " WHERE email_addr=?")
+                      email-addr])))
+
+(defn user-email-exists? [ email-addr ]
+  (not (nil? (get-user-by-email email-addr))))
+
 
 ;;; contributor
 

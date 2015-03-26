@@ -11,8 +11,7 @@
             [cemerick.friend :as friend]
             [compojure.route :as route]
             [compojure.handler :as handler]
-            [cemerick.friend.workflows :as workflows]
-            [cemerick.friend.credentials :as credentials]))
+            [cemerick.friend.workflows :as workflows]))
 
 
 (def site-routes
