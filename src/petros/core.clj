@@ -1,7 +1,9 @@
+
 (ns petros.core
   (:require [cemerick.friend :as friend]
             [clojure.string :as string]
             [petros.data :as data]
+            [clojure.tools.logging :as log]
             [cemerick.friend.credentials :as credentials]))
 
 (defn authenticated-username []
@@ -27,7 +29,7 @@
             (not (credentials/bcrypt-verify (creds :password) (user-record :password))))
       nil
       {:identity (creds :username)
-       :roles #{ :role-user }})))
+       :roles (:roles user-record)})))
 
 (defn password-matches? [ password ]
   (not (nil? (db-credential-fn {:username (authenticated-username)

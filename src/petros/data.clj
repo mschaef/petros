@@ -26,7 +26,7 @@
 
 (defn get-user-roles [ user-id ]
   (set
-   (map #(keyword "petros.role" %)
+   (map #(keyword "petros.role" (:role_name %))
         (query-all *db* 
                    [(str "SELECT role_name"
                          "  FROM user u, role r, user_role ur"
@@ -36,14 +36,15 @@
                     user-id]))))
 
 (defn- get-role-id [ role-name ]
-  (query-first *db*
-               [(str "SELECT role_id"
-                     "  FROM role"
-                     " WHERE role_name = ?")
-                (name role-name)]))
+  (:role_id
+   (query-first *db*
+                [(str "SELECT role_id"
+                      "  FROM role"
+                      " WHERE role_name = ?")
+                 (name role-name)])))
 
 (defn delete-user-roles [ user-id ]
-  (jdbc/delete! *db* :user_role { :user_id user-id}))
+  (jdbc/delete! *db* :user_role ["user_id=?" user-id]))
 
 
 (defn set-user-roles [ user-id role-set ]

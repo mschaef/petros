@@ -17,8 +17,8 @@
 (def site-routes
   (routes user/public-routes
           (route/resources "/")
-          (friend/wrap-authorize user/private-routes #{:role-user})
-          (friend/wrap-authorize app/app-routes #{:role-user})
+          (friend/wrap-authorize user/private-routes #{:petros.role/verified})
+          (friend/wrap-authorize app/app-routes #{:petros.role/verified})
           (route/not-found "Resource Not Found")))
 
 (defn wrap-request-logging [ app ]

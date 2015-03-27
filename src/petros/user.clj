@@ -62,7 +62,8 @@
    :else
    (do
      (log/info "Creating user: " email-addr)
-     (data/add-user email-addr (credentials/hash-bcrypt password))
+     (let [ user-id  (data/add-user email-addr (credentials/hash-bcrypt password)) ]
+       (data/set-user-roles user-id #{:petros.role/verified}))
      (ring/redirect "/"))))
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
