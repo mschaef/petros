@@ -21,12 +21,12 @@
   ((data/get-user-by-email (authenticated-username)) :user_id))
 
 (defn db-credential-fn [ creds ]
-  (let [user-record (data/get-user-by-email (creds :username))]
-    (if (or (nil? user-record)
-            (not (credentials/bcrypt-verify (creds :password) (user-record :password))))
-      nil
-      {:identity (creds :username)
-       :roles (:roles user-record)})))
+  (if-let [user-record (data/get-user-by-email (creds :username))]
+    (and (credentials/bcrypt-verify (creds :password)
+                                    (user-record :password))
+         {:identity (creds :username)
+          :roles (data/get-user-roles (:user_id user-record))})
+    nil))
 
 (defn password-matches? [ password ]
   (not (nil? (db-credential-fn {:username (authenticated-username)

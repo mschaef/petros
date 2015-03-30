@@ -67,18 +67,11 @@
                 ["email_addr=?" email-addr]))
 
 
-(defn- enrich-user-with-roles [ user ]
-  (if (nil? user)
-    user
-    (merge user
-           { :roles (get-user-roles (:user_id user))})))
-
 (defn get-user-by-email [ email-addr ]
-  (enrich-user-with-roles
-   (query-first *db* [(str "SELECT *"
-                           "  FROM user"
-                           " WHERE email_addr=?")
-                      email-addr])))
+  (query-first *db* [(str "SELECT *"
+                          "  FROM user"
+                          " WHERE email_addr=?")
+                     email-addr]))
 
 (defn user-email-exists? [ email-addr ]
   (not (nil? (get-user-by-email email-addr))))
