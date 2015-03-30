@@ -7,11 +7,10 @@
             [cemerick.friend :as friend]
             [hiccup.form :as form]
             [petros.core :as core]
-            [petros.data :as data]
-            [petros.view :as view]))
+            [petros.data :as data]))
 
 (defn render-login-page [ & { :keys [ email-addr login-failure?]}]
-  (view/render-page { :page-title "Log In" }
+  (core/render-page { :page-title "Log In" }
    (form/form-to
     [:post "/login"]
     [:table { :class "form" }
@@ -32,7 +31,7 @@
         (form/submit-button {} "Login")]]]])))
 
 (defn render-new-user-form [ & { :keys [ error-message ]}]
-  (view/render-page { :page-title "Register New User" }
+  (core/render-page { :page-title "Register New User" }
    (form/form-to
     [:post "/user"]
     [:table { :class "form" }
@@ -67,7 +66,7 @@
      (ring/redirect "/"))))
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
-  (view/render-page { :page-title "Change Password" }
+  (core/render-page { :page-title "Change Password" }
    (form/form-to
     [:post "/user/password"]
     [:table { :class "form" }

@@ -6,7 +6,6 @@
             [petros.data :as data]
             [petros.core :as core]
             [petros.user :as user]
-            [petros.view :as view]
             [petros.app :as app]
             [cemerick.friend :as friend]
             [compojure.route :as route]
@@ -47,11 +46,11 @@
       (app req))))
 
 (defn user-unauthorized [ request ]
-  (view/render-page { :page-title "Access Denied"}
+  (core/render-page { :page-title "Access Denied"}
                     [:h1 "Access Denied"]))
 
 (defn user-unverified [ request ]
-  (view/render-page { :page-title "E-Mail Unverified"}
+  (core/render-page { :page-title "E-Mail Unverified"}
                     [:h1 "E-Mail Unverified"]))
 
 (defn missing-verification? [ request ]

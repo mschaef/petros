@@ -5,7 +5,6 @@
             [petros.data :as data]
             [petros.core :as core]
             [petros.user :as user]
-            [petros.view :as view]
             [compojure.route :as route]
             [hiccup.form :as form]
             [compojure.handler :as handler]
@@ -95,7 +94,7 @@
   (str "/sheet/" sheet-id "/checks"))
 
 (defn render-home-page []
-  (view/render-page {:page-title "Home" }
+  (core/render-page {:page-title "Home" }
 
                     [:div.main-menu
                      [:div.entry
@@ -107,7 +106,7 @@
                        "See Existing Count Sheets"]]]))
 
 (defn render-sheet-list []
-  (view/render-page {:page-title "Count Sheets" }
+  (core/render-page {:page-title "Count Sheets" }
                      [:table
                       (table-head "Creator" "Created On" "Total Amount" "" "")
                       (map #(let [ id (:count_sheet_id %) ]
@@ -169,7 +168,7 @@
   (let [info (data/count-sheet-info id)
         summary (data/count-sheet-summary id)
         summary-data (group-summary summary)]
-    (view/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)) )
+    (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)) )
                        :sidebar (render-sheet-sidebar id :summary)}
                       
                       [:h1 "Summary"]
@@ -192,7 +191,7 @@
   (let [info (data/count-sheet-info id)
         summary (data/count-sheet-summary id)
         summary-data (group-summary summary)]
-    (view/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)) )
+    (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)) )
                        :sidebar (render-sheet-sidebar id :checks)}
                     
                       [:h1 "Checks"]
@@ -240,7 +239,7 @@
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
   (let [ info (data/count-sheet-info sheet-id) ]
-    (view/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
+    (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id :entry)}
                       [:table.form.entries
