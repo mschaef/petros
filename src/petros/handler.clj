@@ -46,9 +46,31 @@
     (data/with-db-connection
       (app req))))
 
+(defn user-unauthorized [ request ]
+  (view/render-page { :page-title "Access Denied"}
+                    [:h1 "Access Denied"]))
+
+(defn user-unverified [ request ]
+  (view/render-page { :page-title "E-Mail Unverified"}
+                    [:h1 "E-Mail Unverified"]))
+
+(defn missing-verification? [ request ]
+  (= (clojure.set/difference (get-in request [:cemerick.friend/authorization-failure
+                                              :cemerick.friend/required-roles])
+                             (:roles (friend/current-authentication)))
+     #{:petros.role/verified}))
+
+(defn unauthorized-handler [request]
+  {:status 403
+   :body ((if (missing-verification? request)
+            user-unverified
+            user-unauthorized)
+          request)})
+
 (def handler (-> site-routes
                  (friend/authenticate {:credential-fn core/db-credential-fn
-                                       :workflows [(workflows/interactive-form)]})
+                                       :workflows [(workflows/interactive-form)]
+                                       :unauthorized-handler unauthorized-handler})
                  (extend-session-duration 1)
                  (wrap-db-connection)
                  (wrap-request-logging)

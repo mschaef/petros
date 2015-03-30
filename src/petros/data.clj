@@ -36,12 +36,11 @@
                     user-id]))))
 
 (defn- get-role-id [ role-name ]
-  (:role_id
-   (query-first *db*
+  (query-scalar *db*
                 [(str "SELECT role_id"
                       "  FROM role"
                       " WHERE role_name = ?")
-                 (name role-name)])))
+                 (name role-name)]))
 
 (defn delete-user-roles [ user-id ]
   (jdbc/delete! *db* :user_role ["user_id=?" user-id]))
