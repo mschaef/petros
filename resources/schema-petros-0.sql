@@ -1,36 +1,44 @@
 
 CREATE CACHED TABLE user (
-  user_id BIGINT IDENTITY,
+  user_id INTEGER IDENTITY,
   email_addr VARCHAR(255) UNIQUE,
   password VARCHAR(255)
 );
 
+CREATE CACHED TABLE verification_link (
+  verification_link_id INTEGER IDENTITY,
+  link_uuid VARCHAR(36) NOT NULL UNIQUE,
+  expires_on TIMESTAMP NOT NULL,
+  verifies_user_id INTEGER NOT NULL REFERENCES user(user_id)    
+);
+
 CREATE CACHED TABLE role (
-  role_id BIGINT IDENTITY,
+  role_id INTEGER IDENTITY,
   role_name VARCHAR(32) NOT NULL
 );
 
 INSERT INTO role(role_name) values('verified');
+INSERT INTO role(role_name) values('counter');
 INSERT INTO role(role_name) values('accountant');
 INSERT INTO role(role_name) values('administrator');
 
 CREATE CACHED TABLE user_role (
-  user_id BIGINT REFERENCES user(user_id),
-  role_id BIGINT REFERENCES role(role_id)
+  user_id INTEGER REFERENCES user(user_id),
+  role_id INTEGER REFERENCES role(role_id)
 );
 
 CREATE CACHED TABLE count_sheet (
-  count_sheet_id BIGINT IDENTITY,
+  count_sheet_id INTEGER IDENTITY,
   
-  creator_user_id BIGINT REFERENCES user(user_id),
+  creator_user_id INTEGER REFERENCES user(user_id),
   created_on TIMESTAMP NOT NULL,
 
-  finalizer_user_id BIGINT NULL REFERENCES user(user_id),
+  finalizer_user_id INTEGER NULL REFERENCES user(user_id),
   final_on TIMESTAMP NULL
 );
 
 CREATE CACHED TABLE account (
-  account_id BIGINT IDENTITY,
+  account_id INTEGER IDENTITY,
   name VARCHAR(32) NOT NULL
 );
 
@@ -46,15 +54,15 @@ INSERT INTO account(name) values('Rental Income');
 INSERT INTO account(name) values('Other (see notes)');
 
 CREATE CACHED TABLE contributor (
-  contributor_id BIGINT IDENTITY,
+  contributor_id INTEGER IDENTITY,
   name VARCHAR(64) NOT NULL
 );
 
 CREATE CACHED TABLE deposit_item (
-  item_id BIGINT IDENTITY,
-  count_sheet_id BIGINT REFERENCES count_sheet(count_sheet_id),
-  contributor_id BIGINT NULL REFERENCES contributor(contributor_id),
-  account_id BIGINT REFERENCES account(account_id),
+  item_id INTEGER IDENTITY,
+  count_sheet_id INTEGER REFERENCES count_sheet(count_sheet_id),
+  contributor_id INTEGER NULL REFERENCES contributor(contributor_id),
+  account_id INTEGER REFERENCES account(account_id),
   check_number NUMERIC(10) NULL,
   amount NUMERIC(9,2) NOT NULL,
   notes VARCHAR(1024)
