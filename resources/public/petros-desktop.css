@@ -136,12 +136,19 @@ table.entries tr { text-align: center; }
 
 
 div#contents {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    
     padding-top: 3em;
     padding-bottom: 10px;
     background: white;
+    
 }
 
 div#contents.with-sidebar {
+    padding-left: 0em;
+    padding-right: 0em;
+
     margin-left: 240px;
 }
 
