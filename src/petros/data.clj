@@ -68,6 +68,12 @@
                 ["email_addr=?" email-addr]))
 
 
+(defn get-user-by-id [ user-id ]
+  (query-first *db* [(str "SELECT *"
+                          "  FROM user"
+                          " WHERE user_id=?")
+                     user-id]))
+
 (defn get-user-by-email [ email-addr ]
   (query-first *db* [(str "SELECT *"
                           "  FROM user"

@@ -106,17 +106,18 @@
        (ring/redirect "/")))))
 
 (defn verify-user [ link-uuid ]
-  (let [user-id (:verifies_user_id
-                  (data/get-verification-link-by-uuid link-uuid))]
-    
-    (data/set-user-roles user-id
-                         (clojure.set/union (data/get-user-roles user-id)
-                                            #{:petros.role/verified}))
+  (when-let [ user-id (:verifies_user_id (data/get-verification-link-by-uuid link-uuid)) ]
+    (let [ email-addr (:email_addr (data/get-user-by-id user-id)) ]
+      (data/set-user-roles user-id
+                           (clojure.set/union (data/get-user-roles user-id)
+                                              #{:petros.role/verified}))
 
-    (core/render-page { :page-title "e-Mail Address Verified" }
-                      [:h1 "E-mail verified"]
-                      [:p "Thank you for verifying your e-mail address"]
-                      [:a {:href "/"} "Home"])))
+      (core/render-page { :page-title "e-Mail Address Verified" }
+                        [:h1 "e-Mail Address Verified"]
+                        [:p "Thank you for verifying your e-mail address at: "
+                         [:span.addr email-addr] ". Using the link below, you "
+                         "can log in and start to use the system."]
+                        [:a {:href "/"} "Login"]))))
 
 (defroutes public-routes
   (GET "/user" []
@@ -127,15 +128,15 @@
                   password2 :password2} :params}
     (add-user email-addr password password2))
 
-
-  (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
-  
   (GET "/login" { { login-failed :login_failed email-addr :username } :params }
     (render-login-page :email-addr email-addr
                        :login-failure? (= login-failed "Y")))
-
-  (GET "/user/verify/:uuid" { { link-uuid :uuid } :params }
-    (verify-user link-uuid)))
+  (friend/logout
+   (GET "/user/verify/:uuid" { { link-uuid :uuid } :params }
+     (verify-user link-uuid)))
+  
+  (friend/logout
+   (ANY "/logout" [] (ring.util.response/redirect "/"))))
 
 (defroutes private-routes
   (GET "/user/password" []
