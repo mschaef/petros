@@ -107,3 +107,7 @@
   (clojure.string/join " " (map str (filter #(classes %)
                                             (keys classes)))))
 
+
+(defmacro lwatch [ expr ]
+  `(log/error :watch '~expr ~expr))
+
