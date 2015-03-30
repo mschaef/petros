@@ -1,5 +1,6 @@
 (ns petros.data
   (:use petros.util)
+  (:import )
   (:require [clojure.tools.logging :as log]
             [clojure.java.jdbc :as jdbc]
             [sql-file.core :as sql-file]))
@@ -76,6 +77,26 @@
 (defn user-email-exists? [ email-addr ]
   (not (nil? (get-user-by-email email-addr))))
 
+
+(defn create-verification-link [ user-id ]
+  (:verification_link_id
+   (first
+    (jdbc/insert! *db* :verification_link
+                  {:link_uuid (.toString (java.util.UUID/randomUUID))
+                   :verifies_user_id user-id
+                   :created_on (java.util.Date.)}))))
+
+(defn get-verification-link-by-id [ link-id ]
+  (query-first *db* [(str "SELECT *"
+                          "  FROM verification_link"
+                          " WHERE verification_link_id=?")
+                     link-id]))
+
+(defn get-verification-link-by-uuid [ link-uuid ]
+  (query-first *db* [(str "SELECT *"
+                          "  FROM verification_link"
+                          " WHERE link_uuid=?")
+                     link-uuid]))
 
 ;;; contributor
 

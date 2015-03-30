@@ -8,7 +8,7 @@ CREATE CACHED TABLE user (
 CREATE CACHED TABLE verification_link (
   verification_link_id INTEGER IDENTITY,
   link_uuid VARCHAR(36) NOT NULL UNIQUE,
-  expires_on TIMESTAMP NOT NULL,
+  created_on TIMESTAMP NOT NULL,
   verifies_user_id INTEGER NOT NULL REFERENCES user(user_id)    
 );
 
@@ -23,8 +23,8 @@ INSERT INTO role(role_name) values('accountant');
 INSERT INTO role(role_name) values('administrator');
 
 CREATE CACHED TABLE user_role (
-  user_id INTEGER REFERENCES user(user_id),
-  role_id INTEGER REFERENCES role(role_id)
+  user_id INTEGER NOT NULL REFERENCES user(user_id),
+  role_id INTEGER NOT NULL REFERENCES role(role_id)
 );
 
 CREATE CACHED TABLE count_sheet (

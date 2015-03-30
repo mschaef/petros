@@ -61,9 +61,11 @@
    :else
    (do
      (log/info "Creating user: " email-addr)
-     (let [ user-id  (data/add-user email-addr (credentials/hash-bcrypt password)) ]
-       (data/set-user-roles user-id #{:petros.role/verified}))
-     (ring/redirect "/"))))
+     (let [user-id (data/add-user email-addr
+                                   (credentials/hash-bcrypt password))
+           link-id (data/create-verification-link user-id)]
+       (log/spy :error (data/get-verification-link-by-id link-id))
+       (ring/redirect "/")))))
 
 (defn render-change-password-form  [ & { :keys [ error-message ]}]
   (core/render-page { :page-title "Change Password" }
@@ -103,23 +105,41 @@
        (data/set-user-password email-addr (credentials/hash-bcrypt new-password-1))
        (ring/redirect "/")))))
 
+(defn verify-user [ link-uuid ]
+  (let [user-id (:verifies_user_id
+                  (data/get-verification-link-by-uuid link-uuid))]
+    
+    (data/set-user-roles user-id
+                         (clojure.set/union (data/get-user-roles user-id)
+                                            #{:petros.role/verified}))
+
+    (core/render-page { :page-title "e-Mail Address Verified" }
+                      [:h1 "E-mail verified"]
+                      [:p "Thank you for verifying your e-mail address"]
+                      [:a {:href "/"} "Home"])))
+
 (defroutes public-routes
   (GET "/user" []
        (render-new-user-form))
 
-  (POST "/user" {{email-addr :email_addr password :password password2 :password2} :params}
-        (add-user email-addr password password2))
+  (POST "/user" {{email-addr :email_addr
+                  password :password
+                  password2 :password2} :params}
+    (add-user email-addr password password2))
 
 
   (friend/logout (ANY "/logout" []  (ring.util.response/redirect "/")))
   
   (GET "/login" { { login-failed :login_failed email-addr :username } :params }
     (render-login-page :email-addr email-addr
-                       :login-failure? (= login-failed "Y"))))
+                       :login-failure? (= login-failed "Y")))
+
+  (GET "/user/verify/:uuid" { { link-uuid :uuid } :params }
+    (verify-user link-uuid)))
 
 (defroutes private-routes
   (GET "/user/password" []
-       (render-change-password-form))
+    (render-change-password-form))
 
   (POST "/user/password" {{password :password new-password-1 :new_password1 new-password-2 :new_password2} :params}
     (change-password password new-password-1 new-password-2)))
