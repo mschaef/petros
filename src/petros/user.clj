@@ -16,10 +16,10 @@
     [:table { :class "form" }
      [:tr
       [:td "E-Mail Address:"]
-      [:td (form/text-field { :class "simple-border" } "username" email-addr)]]
+      [:td (form/text-field "username" email-addr)]]
      [:tr
       [:td "Password:"]
-      [:td (form/password-field { :class "simple-border" } "password")]]
+      [:td (form/password-field "password")]]
      [:tr [:td { :colspan 4 }
            (if login-failure?
              [:div#error "Invalid username or password."])]]
@@ -37,13 +37,13 @@
     [:table { :class "form" }
      [:tr
       [:td "E-Mail Address:"]
-      [:td  (form/text-field { :class "simple-border" } "email_addr")]]
+      [:td  (form/text-field "email_addr")]]
      [:tr
       [:td "Password:"]
-      [:td (form/password-field { :class "simple-border" } "password")]]
+      [:td (form/password-field "password")]]
      [:tr
       [:td "Verify Password:"]
-      [:td (form/password-field { :class "simple-border" } "password2")]]
+      [:td (form/password-field "password2")]]
      
      (unless (empty? error-message)
        [:tr [:td { :colspan 2 } [:div#error error-message]]])
@@ -77,13 +77,13 @@
       [:td  (core/authenticated-username)]]
      [:tr
       [:td "Old Password:"]
-      [:td (form/password-field { :class "simple-border" } "password")]]
+      [:td (form/password-field "password")]]
      [:tr
       [:td "New Password:"]
-      [:td (form/password-field { :class "simple-border" } "new_password1")]]
+      [:td (form/password-field "new_password1")]]
      [:tr
       [:td "Verify Password:"]
-      [:td (form/password-field { :class "simple-border" } "new_password2")]]
+      [:td (form/password-field "new_password2")]]
      
      (unless (empty? error-message)
        [:tr [:td { :colspan 2 } [:div#error error-message]]])

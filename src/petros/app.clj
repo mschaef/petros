@@ -107,7 +107,7 @@
 
 (defn render-sheet-list []
   (core/render-page {:page-title "Count Sheets" }
-                     [:table
+                     [:table.data
                       (table-head "Creator" "Created On" "Total Amount" "" "")
                       (map #(let [ id (:count_sheet_id %) ]
                               (table-row (:email_addr %)
@@ -172,19 +172,21 @@
                        :sidebar (render-sheet-sidebar id :summary)}
                       
                       [:h1 "Summary"]
-                      [:table.summary
+                      [:table.data.summary
                        (table-head "Account" "Check" "Cash" "Subtotal")
                        (map (fn [ acct-name ]
-                              (table-row acct-name
-                                         (fmt-ccy (get-in summary-data [ acct-name :check ]) "&nbsp;")
-                                         (fmt-ccy (get-in summary-data [ acct-name :cash ]) "&nbsp;")
-                                         (fmt-ccy (+ (get-in summary-data [ acct-name :check ] 0.0)
-                                                     (get-in summary-data [ acct-name :cash ] 0.0)))))
+                              [:tr
+                               [:td acct-name]
+                               [:td.value (fmt-ccy (get-in summary-data [ acct-name :check ]) "&nbsp;")]
+                               [:td.value (fmt-ccy (get-in summary-data [ acct-name :cash ]) "&nbsp;")]
+                               [:td.value (fmt-ccy (+ (get-in summary-data [ acct-name :check ] 0.0)
+                                                      (get-in summary-data [ acct-name :cash ] 0.0)))]])
                             (data/all-account-names))
-                       (table-row "Total"
-                                  (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))
-                                  (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))
-                                  (fmt-ccy (total-amounts summary)))])))
+                       [:tr
+                        [:td "Total"]
+                        [:td.value (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))]
+                        [:td.value (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))]
+                        [:td.value  (fmt-ccy (total-amounts summary))]]])))
 
 
 (defn render-sheet-checks [id error-msg init-vals ]
@@ -195,7 +197,7 @@
                        :sidebar (render-sheet-sidebar id :checks)}
                     
                       [:h1 "Checks"]
-                      [:table.checks
+                      [:table.data.checks
                        [:thead
                         [:tr
                          [:th "Contributor"]
@@ -207,11 +209,13 @@
                        (let [ checks (filter :check_number
                                              (data/all-count-sheet-deposits id))]
                          (if (> (count checks) 0)
-                           (map #(table-row (:contributor %)
-                                            (:account_name %)
-                                            (fmt-ccy (:amount %))
-                                            (or (:check_number %) "Cash")
-                                            (:notes %))
+                           (map (fn [ check ]
+                                  [:tr
+                                   [:td (:contributor check)]
+                                   [:td.value (:account_name check)]
+                                   [:td.value (fmt-ccy (:amount check))]
+                                   [:td.value (or (:check_number check) "Cash")]
+                                   [:td (:notes check)]])
                                 checks)
                            [:tr [:td.no-checks { :colspan "5" } "No Checks"]]))])))
 
@@ -242,7 +246,7 @@
     (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id :entry)}
-                      [:table.form.entries
+                      [:table.data.entries
                        (table-head "Contributor" "Account" "Amount" "Check Number" "Notes" "")
                        (map #(if (and (parsable-integer? edit-item)
                                       (== (:item_id %) (parsable-integer? edit-item)))
