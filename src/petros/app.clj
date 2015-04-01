@@ -233,13 +233,13 @@
 
 (defn item-display-row [ sheet-id dep-item ]
   (log/error dep-item)
-  (table-row { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
-             (or (:contributor dep-item) [:span.informational "Unattributed"])
-             (:account_name dep-item)
-             (fmt-ccy (:amount dep-item))
-             (or (:check_number dep-item) [:span.informational "Cash"])
-             (:notes dep-item)
-             ""))
+  [:tr { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
+   [:td.value (or (:contributor dep-item) [:span.informational "Unattributed"])]
+   [:td.value (:account_name dep-item)]
+   [:td.value (fmt-ccy (:amount dep-item))]
+   [:td.value (or (:check_number dep-item) [:span.informational "Cash"])]
+   [:td (:notes dep-item)]
+   [:td ""]])
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
   (let [ info (data/count-sheet-info sheet-id) ]

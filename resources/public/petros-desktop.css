@@ -60,7 +60,7 @@ div#contents.with-sidebar {
     padding-left: 0.5em;
     padding-right: 0em;
 
-    margin-left: 240px;
+    margin-left: 230px;
 }
 
 /* Page header and footer */
@@ -108,7 +108,7 @@ div#sidebar {
     padding-left: 0;
     padding-top: 3em;
     float:left;
-    width: 240px;
+    width: 220px;
 }
 
 div#sidebar div.content {
@@ -149,32 +149,27 @@ div.entry {
 }
 
 div.menu-entry {
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
     text-align: left;
     padding-left: 0.5em;
 }
 
 div.menu-entry.is-active {
     color: red;
+    font-weight: bold;
     border-left: 0.4em solid red;
 }
 
-div.menu-entry.is-active:hover {
+div.menu-entry:hover {
     background: #e0e0e0;
 }
 
 div.menu-entry.is-inactive {
-    background: #f0f0f0;
-    border-left: 0.4em solid #f0f0f0;
+    border-left: 0.4em solid white;
 }
-
-div.menu-entry.is-inactive:hover {
-    background: #e0e0e0;
-}
-
 div.menu-entry.is-active A {
-    color: black;
+    color: red;
 }
 
 div.main-menu A {
@@ -209,8 +204,8 @@ table.data td {
     padding-top: 0.33em;
     padding-bottom: 0.33em;
 
-    padding-left: 2em;
-    padding-right: 2em;
+    padding-left: 1em;
+    padding-right: 1em;
 }
 
 table.data th {
@@ -226,10 +221,6 @@ table.data td.value {
 }
 
 /* Table of count sheet entries */
-
-table.entries tr {
-    text-align: center;
-}
 
 table.entries td {
     padding-top: 0.25em;
