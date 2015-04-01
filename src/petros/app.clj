@@ -200,10 +200,10 @@
                       [:table.data.checks
                        [:thead
                         [:tr
-                         [:th "Contributor"]
-                         [:th "Account"]
                          [:th "Amount"]
+                         [:th "Contributor"]
                          [:th "Check Number"]
+                         [:th "Account"]
                          [:th.notes "Notes"]]]
 
                        (let [ checks (filter :check_number
@@ -211,10 +211,10 @@
                          (if (> (count checks) 0)
                            (map (fn [ check ]
                                   [:tr
+                                   [:td.value (fmt-ccy (:amount check))]                                   
                                    [:td (:contributor check)]
-                                   [:td.value (:account_name check)]
-                                   [:td.value (fmt-ccy (:amount check))]
                                    [:td.value (or (:check_number check) "Cash")]
+                                   [:td.value (:account_name check)]
                                    [:td (:notes check)]])
                                 checks)
                            [:tr [:td.no-checks { :colspan "5" } "No Checks"]]))])))
@@ -223,9 +223,9 @@
   (list
    (form/form-to { } [:post post-target]
                  [:tr
+                  [:td (form/text-field { } "amount" (:amount init-vals))]
                   [:td (form/text-field { } "contributor" (:contributor init-vals))]
                   [:td (account-selector { } "account_id" (:account_id init-vals))]
-                  [:td (form/text-field { } "amount" (:amount init-vals))]
                   [:td (form/text-field { } "check_number" (:check_number init-vals))]
                   [:td
                    (form/text-field { :style "width:100%"} "notes" (:notes init-vals))
@@ -235,9 +235,9 @@
 
 (defn item-display-row [ sheet-id dep-item ]
   [:tr { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
+   [:td.value (fmt-ccy (:amount dep-item))]
    [:td.value (or (:contributor dep-item) [:span.informational "Unattributed"])]
    [:td.value (:account_name dep-item)]
-   [:td.value (fmt-ccy (:amount dep-item))]
    [:td.value (or (:check_number dep-item) [:span.informational "Cash"])]
    [:td (:notes dep-item)]])
 
@@ -247,7 +247,7 @@
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id :entry)}
                       [:table.data.entries
-                       (table-head "Contributor" "Account" "Amount" "Check Number" "Notes" "")
+                       (table-head "Amount"  "Contributor" "Account" "Check Number" "Notes")
                        (map #(if (and (parsable-integer? edit-item)
                                       (== (:item_id %) (parsable-integer? edit-item)))
                                (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
