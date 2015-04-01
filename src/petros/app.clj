@@ -222,24 +222,24 @@
 (defn item-edit-row [ sheet-id error-msg init-vals post-target cancel-target]
   (list
    (form/form-to { } [:post post-target]
-                 (table-row (form/text-field { } "contributor" (:contributor init-vals))
-                            (account-selector { } "account_id" (:account_id init-vals))
-                            (form/text-field { } "amount" (:amount init-vals))
-                            (form/text-field { } "check_number" (:check_number init-vals))
-                            (form/text-field { :style "width:100%"} "notes" (:notes init-vals))
-                            [:button { :type "submit" } icon-check ]))
+                 [:tr
+                  [:td (form/text-field { } "contributor" (:contributor init-vals))]
+                  [:td (account-selector { } "account_id" (:account_id init-vals))]
+                  [:td (form/text-field { } "amount" (:amount init-vals))]
+                  [:td (form/text-field { } "check_number" (:check_number init-vals))]
+                  [:td
+                   (form/text-field { :style "width:100%"} "notes" (:notes init-vals))
+                   [:button.hidden { :type "submit" } icon-check ]]])
    (when error-msg
-     [:tr [:td {:class "error-message" :colspan "8"} error-msg]])))
+     [:tr [:td {:class "error-message" :colspan "85"} error-msg]])))
 
 (defn item-display-row [ sheet-id dep-item ]
-  (log/error dep-item)
   [:tr { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
    [:td.value (or (:contributor dep-item) [:span.informational "Unattributed"])]
    [:td.value (:account_name dep-item)]
    [:td.value (fmt-ccy (:amount dep-item))]
    [:td.value (or (:check_number dep-item) [:span.informational "Cash"])]
-   [:td (:notes dep-item)]
-   [:td ""]])
+   [:td (:notes dep-item)]])
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
   (let [ info (data/count-sheet-info sheet-id) ]
