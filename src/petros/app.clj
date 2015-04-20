@@ -28,7 +28,13 @@
         (nil? amount) (fmt default)
         :else (fmt-fn amount)))))
 
-(def fmt-ccy (formatter #(format "$%.2f" (ensure-bigdec %)) 0))
+(defn fmt-ccy-amount [ amount ]
+  (let [ amount (ensure-bigdec amount) ]
+    (if (< (.compareTo (.abs amount) 0.001M) 0)
+      "-"
+      (format "$%.2f" amount))))
+  
+(def fmt-ccy (formatter fmt-ccy-amount 0))
 (def fmt-date (formatter #(format "%1$tB %1$te, %1$tY" %) ""))
 
 (defn elem-has-attrs? [ elem ]
@@ -177,8 +183,8 @@
                        (map (fn [ acct-name ]
                               [:tr
                                [:td acct-name]
-                               [:td.value (fmt-ccy (get-in summary-data [ acct-name :check ]) "&nbsp;")]
-                               [:td.value (fmt-ccy (get-in summary-data [ acct-name :cash ]) "&nbsp;")]
+                               [:td.value (fmt-ccy (get-in summary-data [ acct-name :check ]) 0.0)]
+                               [:td.value (fmt-ccy (get-in summary-data [ acct-name :cash ]) 0.0)]
                                [:td.value (fmt-ccy (+ (get-in summary-data [ acct-name :check ] 0.0)
                                                       (get-in summary-data [ acct-name :cash ] 0.0)))]])
                             (data/all-account-names))
