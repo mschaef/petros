@@ -37,44 +37,6 @@
 (def fmt-ccy (formatter fmt-ccy-amount 0))
 (def fmt-date (formatter #(format "%1$tB %1$te, %1$tY" %) ""))
 
-(defn elem-has-attrs? [ elem ]
-  (let [ obj (second elem) ]
-    (if (map? obj)
-      obj
-      false)))
-
-(defn elem-attrs [ elem ]
-  (or (elem-has-attrs? elem)
-      {}))
-
-(defn elem-attr [ elem attr-name ]
-  (get (elem-attrs elem) attr-name))
-
-(defn elem-assoc-attrs [ elem new-attrs ]
-  (if (elem-has-attrs? elem)
-    (assoc elem 1 new-attrs)
-    `[~(first elem) ~new-attrs ~@(rest elem)]))
-
-(defn elem-merge-attrs [ elem new-attrs ]
-  (elem-assoc-attrs elem (merge (elem-attrs elem) new-attrs)))
-
-(defn map-body
-  ([ f elem ]
-     (if-let [ attrs (elem-has-attrs? elem) ]
-       `[~(first elem) ~attrs ~@(map f (rest (rest elem)))]
-       `[~(first elem) ~@(map f (rest elem))]))
-
-  ([ f elem c1 ]
-     (if-let [ attrs (elem-has-attrs? elem) ]
-       `[~(first elem) ~attrs ~@(map f (rest (rest elem)) c1)]
-       `[~(first elem) ~@(map f (rest elem) c1)])))
-
-(defn zebra [ elem ]
-  (map-body (fn [ selem class ]
-              (elem-assoc-attrs selem { :class class }))
-            elem
-            (cycle ["even" "odd"])))
-
 (defn table-head [ & tds ]
     (let [ [ attrs tds ]
          (if (map? tds)
