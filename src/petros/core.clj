@@ -73,5 +73,13 @@
         contents]
        (render-footer username)]])))
 
+(defn render-printable [ page-title  & contents]
+  (hiccup/html
+   [:html
+    (standard-header page-title nil)
+    [:body
+     [:div#contents 
+      contents]]]))
+
 
 

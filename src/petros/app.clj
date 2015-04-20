@@ -10,8 +10,19 @@
             [compojure.handler :as handler]
             [ring.util.response :as ring]))
 
-(def icon-pencil [:i {:class "fa fa-pencil fa-lg icon-pencil"}])
 (def icon-check  [:i {:class "fa fa-check fa-lg icon-check"}])
+
+(defn user-has-access-to-sheet? [ user-id sheet-info ]
+  (let [{creator-id :creator_user_id
+         finalizer-id :finalizer_user_id} sheet-info]
+    (or (= user-id creator-id)
+        (= user-id finalizer-id))))
+
+(defn user-has-access-to-sheet-by-id? [ user-id sheet-id ]
+  (user-has-access-to-sheet? user-id (data/count-sheet-info sheet-id)))
+
+(defn current-user-has-access-to-sheet? [ sheet-id ]
+  (user-has-access-to-sheet-by-id? (core/current-user-id) sheet-id))
 
 (defn ensure-bigdec [ val ]
   (if (= (.getClass val) java.math.BigDecimal)
@@ -139,61 +150,71 @@
           0
           summary))
 
+(defn sheet-summary-list [ id ]
+  (let [summary (data/count-sheet-summary id)
+        summary-data (group-summary summary)]
+     [:table.data.summary
+      (table-head "Account" "Check" "Cash" "Subtotal")
+      (map (fn [ acct-name ]
+             [:tr
+              [:td acct-name]
+              [:td.value (fmt-ccy (get-in summary-data [ acct-name :check ]) 0.0)]
+              [:td.value (fmt-ccy (get-in summary-data [ acct-name :cash ]) 0.0)]
+              [:td.value (fmt-ccy (+ (get-in summary-data [ acct-name :check ] 0.0)
+                                     (get-in summary-data [ acct-name :cash ] 0.0)))]])
+           (data/all-account-names))
+      [:tr
+       [:td "Total"]
+       [:td.value (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))]
+       [:td.value (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))]
+       [:td.value  (fmt-ccy (total-amounts summary))]]]))
 
 (defn render-sheet-summary [id error-msg init-vals ]
-  (let [info (data/count-sheet-info id)
-        summary (data/count-sheet-summary id)
-        summary-data (group-summary summary)]
+  (let [info (data/count-sheet-info id)]
     (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)) )
                        :sidebar (render-sheet-sidebar id :summary)}
-                      
                       [:h1 "Summary"]
-                      [:table.data.summary
-                       (table-head "Account" "Check" "Cash" "Subtotal")
-                       (map (fn [ acct-name ]
-                              [:tr
-                               [:td acct-name]
-                               [:td.value (fmt-ccy (get-in summary-data [ acct-name :check ]) 0.0)]
-                               [:td.value (fmt-ccy (get-in summary-data [ acct-name :cash ]) 0.0)]
-                               [:td.value (fmt-ccy (+ (get-in summary-data [ acct-name :check ] 0.0)
-                                                      (get-in summary-data [ acct-name :cash ] 0.0)))]])
-                            (data/all-account-names))
-                       [:tr
-                        [:td "Total"]
-                        [:td.value (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))]
-                        [:td.value (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))]
-                        [:td.value  (fmt-ccy (total-amounts summary))]]])))
+                      (sheet-summary-list id))))
 
+
+(defn sheet-check-list [ id ]
+  [:table.data.checks.full-width
+   [:thead
+    [:tr
+     [:th "Amount"]
+     [:th "Contributor"]
+     [:th "Check Number"]
+     [:th "Account"]
+     [:th.notes "Notes"]]]
+   
+   (let [ checks (filter :check_number
+                         (data/all-count-sheet-deposits id))]
+     (if (> (count checks) 0)
+       (map (fn [ check ]
+              [:tr
+               [:td.value (fmt-ccy (:amount check))]                                   
+               [:td (:contributor check)]
+               [:td.value (or (:check_number check) "Cash")]
+               [:td.value (:account_name check)]
+               [:td (:notes check)]])
+            checks)
+       [:tr [:td.no-checks { :colspan "5" } "No Checks"]]))])
 
 (defn render-sheet-checks [id error-msg init-vals ]
-  (let [info (data/count-sheet-info id)
-        summary (data/count-sheet-summary id)
-        summary-data (group-summary summary)]
+  (let [info (data/count-sheet-info id)]
     (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)) )
                        :sidebar (render-sheet-sidebar id :checks)}
                     
                       [:h1 "Checks"]
-                      [:table.data.checks.full-width
-                       [:thead
-                        [:tr
-                         [:th "Amount"]
-                         [:th "Contributor"]
-                         [:th "Check Number"]
-                         [:th "Account"]
-                         [:th.notes "Notes"]]]
+                      (sheet-check-list id))))
 
-                       (let [ checks (filter :check_number
-                                             (data/all-count-sheet-deposits id))]
-                         (if (> (count checks) 0)
-                           (map (fn [ check ]
-                                  [:tr
-                                   [:td.value (fmt-ccy (:amount check))]                                   
-                                   [:td (:contributor check)]
-                                   [:td.value (or (:check_number check) "Cash")]
-                                   [:td.value (:account_name check)]
-                                   [:td (:notes check)]])
-                                checks)
-                           [:tr [:td.no-checks { :colspan "5" } "No Checks"]]))])))
+(defn render-printable-sheet [ sheet-id ]
+  (let [info (data/count-sheet-info sheet-id)]
+    (core/render-printable (str "Count Sheet - " (fmt-date (:created_on info)) )
+                           [:h1 "Summary"]
+                           (sheet-summary-list sheet-id)
+                           [:h1 "Checks"]
+                           (sheet-check-list sheet-id))))
 
 (defn item-edit-row [ sheet-id error-msg init-vals post-target cancel-target]
   (list
@@ -266,19 +287,6 @@
   obj)
 
 
-(defn user-has-access-to-sheet? [ user-id sheet-info ]
-  (lwatch sheet-info)
-  (let [{creator-id :creator_user_id
-         finalizer-id :finalizer_user_id} sheet-info]
-    (or (= user-id creator-id)
-        (= user-id finalizer-id))))
-
-(defn user-has-access-to-sheet-by-id? [ user-id sheet-id ]
-  (user-has-access-to-sheet? user-id (data/count-sheet-info sheet-id)))
-
-(defn current-user-has-access-to-sheet? [ sheet-id ]
-  (user-has-access-to-sheet-by-id? (core/current-user-id) sheet-id))
-
 (defroutes app-routes
   (GET "/" []
     (render-home-page))
@@ -301,6 +309,11 @@
        (log/info "Displaying sheet summary: " sheet-id)
        (when (current-user-has-access-to-sheet? sheet-id)
          (render-sheet-summary sheet-id nil {})))
+
+  (GET "/sheet/:sheet-id/printable" [ sheet-id ]
+       (log/info "Displaying printable sheet: " sheet-id)
+       (when (current-user-has-access-to-sheet? sheet-id)
+         (render-printable-sheet sheet-id)))
 
   (GET "/sheet/:sheet-id/checks" [ sheet-id ]
        (log/info "Displaying sheet checks: " sheet-id)
