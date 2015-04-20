@@ -196,6 +196,10 @@ table {
     border-collapse: collapse;
 }
 
+table.data.full-width {
+    width: 98%;
+}
+
 table.data > thead > tr {
     border: none;
 }

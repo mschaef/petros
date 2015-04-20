@@ -197,7 +197,7 @@
                        :sidebar (render-sheet-sidebar id :checks)}
                     
                       [:h1 "Checks"]
-                      [:table.data.checks
+                      [:table.data.checks.full-width
                        [:thead
                         [:tr
                          [:th "Amount"]
@@ -246,7 +246,7 @@
     (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id :entry)}
-                      [:table.data.entries
+                      [:table.data.entries.full-width
                        (table-head "Amount"  "Contributor" "Account" "Check Number" "Notes")
                        (map #(if (and (parsable-integer? edit-item)
                                       (== (:item_id %) (parsable-integer? edit-item)))
