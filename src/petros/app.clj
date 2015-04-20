@@ -35,6 +35,12 @@
       (format "$%.2f" amount))))
   
 (def fmt-ccy (formatter fmt-ccy-amount 0))
+
+(defn fmt-ccy-amount-0 [ amount ]
+  (format "$%.2f"(ensure-bigdec amount)))
+  
+(def fmt-ccy-0 (formatter fmt-ccy-amount-0 0))
+
 (def fmt-date (formatter #(format "%1$tB %1$te, %1$tY" %) ""))
 
 (defn table-head [ & tds ]
@@ -103,7 +109,7 @@
   (let [info (data/count-sheet-info id)]
     [:div.content
      [:div.total
-      (fmt-ccy (:total_amount info))]
+      (fmt-ccy-0 (:total_amount info))]
      [:div.entry
       (fmt-date (:created_on info))]
      [:div.entry
