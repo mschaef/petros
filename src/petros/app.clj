@@ -80,16 +80,18 @@
                        "See Existing Count Sheets"]]]))
 
 (defn render-sheet-list []
-  (core/render-page {:page-title "Count Sheets" }
-                     [:table.data
-                      (table-head "Creator" "Created On" "Total Amount" "" "")
-                      (map #(let [ id (:count_sheet_id %) ]
-                              (table-row (:email_addr %)
-                                         (fmt-date (:created_on %))
-                                         (fmt-ccy (:total_amount %))
-                                         [:a { :href (sheet-url id) } "Entry"]
-                                         [:a { :href (sheet-summary-url id) } "Sheet Summary"]))
-                           (data/all-count-sheets))]))
+  (let [ user-id (core/current-user-id) ]
+    (core/render-page {:page-title "Count Sheets" }
+                      [:table.data
+                       (table-head "Creator" "Created On" "Total Amount" "" "")
+                       (map #(let [ id (:count_sheet_id %) ]
+                               (table-row (:email_addr %)
+                                          (fmt-date (:created_on %))
+                                          (fmt-ccy (:total_amount %))
+                                          [:a { :href (sheet-url id) } "Entry"]
+                                          [:a { :href (sheet-summary-url id) } "Sheet Summary"]))
+                            (filter #(user-has-access-to-sheet? user-id %)
+                                    (data/all-count-sheets)))])))
 
 (defn account-selector [ attrs id val ]
   [:select (merge attrs { :name id })
@@ -263,6 +265,20 @@
 (defn accept-notes [ obj message ] 
   obj)
 
+
+(defn user-has-access-to-sheet? [ user-id sheet-info ]
+  (lwatch sheet-info)
+  (let [{creator-id :creator_user_id
+         finalizer-id :finalizer_user_id} sheet-info]
+    (or (= user-id creator-id)
+        (= user-id finalizer-id))))
+
+(defn user-has-access-to-sheet-by-id? [ user-id sheet-id ]
+  (user-has-access-to-sheet? user-id (data/count-sheet-info sheet-id)))
+
+(defn current-user-has-access-to-sheet? [ sheet-id ]
+  (user-has-access-to-sheet-by-id? (core/current-user-id) sheet-id))
+
 (defroutes app-routes
   (GET "/" []
     (render-home-page))
@@ -277,16 +293,19 @@
         (ring/redirect (sheet-url sheet-id)))))
 
   (GET "/sheet/:sheet-id" { { sheet-id :sheet-id edit-item :edit-item last-account-id :last_account_id } :params }
-    (log/info "Displaying sheet: " sheet-id)
-    (render-sheet sheet-id nil { :account_id last-account-id} edit-item))
+       (when (current-user-has-access-to-sheet? sheet-id)
+         (log/info "Displaying sheet: " sheet-id)
+         (render-sheet sheet-id nil { :account_id last-account-id} edit-item)))
 
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
-    (log/info "Displaying sheet summary: " sheet-id)
-    (render-sheet-summary sheet-id nil {}))
+       (log/info "Displaying sheet summary: " sheet-id)
+       (when (current-user-has-access-to-sheet? sheet-id)
+         (render-sheet-summary sheet-id nil {})))
 
   (GET "/sheet/:sheet-id/checks" [ sheet-id ]
-    (log/info "Displaying sheet checks: " sheet-id)
-    (render-sheet-checks sheet-id nil {}))
+       (log/info "Displaying sheet checks: " sheet-id)
+       (when (current-user-has-access-to-sheet? sheet-id)
+         (render-sheet-checks sheet-id nil {})))
 
   (POST "/item/:item-id" { params :params }
     (let [ {item-id :item-id 
