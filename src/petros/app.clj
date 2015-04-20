@@ -229,7 +229,7 @@
                   [:td (form/text-field { } "check_number" (:check_number init-vals))]
                   [:td
                    (form/text-field { :style "width:100%"} "notes" (:notes init-vals))
-                   [:button.hidden { :type "submit" } icon-check ]]])
+                   [:button.hidden-submit { :type "submit" } icon-check ]]])
    (when error-msg
      [:tr [:td {:class "error-message" :colspan "85"} error-msg]])))
 

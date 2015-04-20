@@ -41,8 +41,13 @@ div#error {
     text-align: center;
 }
 
-.hidden {
-    display: none;
+.hidden-submit {
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    border: none;
+    padding: 0px;
+    
 }
 
 /* Top level formatting */
