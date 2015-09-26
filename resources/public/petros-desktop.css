@@ -160,6 +160,10 @@ div.menu-entry {
     padding-left: 0.5em;
 }
 
+div.menu-entry.center {
+    text-align: center;
+}
+
 div.menu-entry.is-active {
     color: red;
     font-weight: bold;

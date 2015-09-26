@@ -78,6 +78,9 @@
 (defn sheet-checks-url [ sheet-id ]
   (str "/sheet/" sheet-id "/checks"))
 
+(defn sheet-printable-url [ sheet-id ]
+  (str "/sheet/" sheet-id "/printable"))
+
 (defn render-home-page []
   (core/render-page {:page-title "Home" }
 
@@ -134,6 +137,9 @@
       [:a { :href (sheet-summary-url id)} "Sheet Summary"]]
      [:div.menu-entry {:class (active-classes (= mode :checks))}
       [:a { :href (sheet-checks-url id)} "Checks"]]     
+     [:div.vspace]
+     [:div.menu-entry.center { :target "_blank" }
+      [:a { :href (sheet-printable-url id)} "Printable"]]     
      [:div.vspace]
      [:div.entry
       [:a { :href "/"} "Home"]]]))
