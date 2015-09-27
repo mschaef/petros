@@ -81,23 +81,17 @@
 (defn sheet-printable-url [ sheet-id ]
   (str "/sheet/" sheet-id "/printable"))
 
-(defn render-home-page []
-  (core/render-page {:page-title "Home" }
-
-                    [:div.main-menu
-                     [:div.entry
-                      (form/form-to [:post "/"]
-                                    [:input {:type "submit"
-                                             :value "Create a New Count Sheet"}])]
-                     [:div.entry
-                      [:a {:href "/sheets"}
-                       "See Existing Count Sheets"]]]))
 
 (defn render-sheet-list []
   (let [ user-id (core/current-user-id) ]
     (core/render-page {:page-title "Count Sheets" }
                       [:table.data
                        (table-head "Creator" "Created On" "Total Amount" "" "")
+                       [:tr
+                        [:td { :colspan 5}
+                         (form/form-to [:post "/"]
+                                       [:input {:type "submit"
+                                                :value "Create a New Count Sheet"}])]]
                        (map #(let [ id (:count_sheet_id %) ]
                                (table-row (:email_addr %)
                                           (fmt-date (:created_on %))
@@ -295,9 +289,6 @@
 
 (defroutes app-routes
   (GET "/" []
-    (render-home-page))
-
-  (GET "/sheets" []
     (render-sheet-list))
   
   (POST "/" []

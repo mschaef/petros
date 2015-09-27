@@ -2,6 +2,8 @@
   :description "Petros - Utility for Automating Plate Count"
   :license { :name "Copyright East Coast Toolworks (c) 2015"}
 
+  :plugins [[lein-ring "0.9.7"]]
+  
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/tools.logging "0.3.1"]
                  [ch.qos.logback/logback-classic "1.1.3"]
@@ -17,8 +19,8 @@
   :main petros.main
   :aot [petros.main]
   
-  :ring {:handler petros.handler/handler }
+  :ring {:handler petros.handler/handler
+         :port 8080}
   
   :jar-name "petros.jar"
-  :uberjar-name "petros-standalone.jar"
-  )
+  :uberjar-name "petros-standalone.jar")
