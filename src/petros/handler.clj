@@ -10,7 +10,8 @@
             [cemerick.friend :as friend]
             [compojure.route :as route]
             [compojure.handler :as handler]
-            [cemerick.friend.workflows :as workflows]))
+            [cemerick.friend.workflows :as workflows]
+            [ring.middleware.json :as json]))
 
 
 (def site-routes
@@ -70,6 +71,7 @@
                  (friend/authenticate {:credential-fn core/db-credential-fn
                                        :workflows [(workflows/interactive-form)]
                                        :unauthorized-handler unauthorized-handler})
+                 (json/wrap-json-body)
                  (extend-session-duration 1)
                  (wrap-db-connection)
                  (wrap-request-logging)

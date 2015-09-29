@@ -12,6 +12,7 @@
                   :exclusions [com.fasterxml.jackson.core/jackson-core]]
                  [hiccup "1.0.5"]
                  [ring/ring-jetty-adapter "1.3.2"]
+                 [ring/ring-json "0.4.0"]
                  [com.cemerick/friend "0.2.1"]
                  [compojure "1.4.0"]
                  [slingshot "0.12.2"]]

@@ -216,10 +216,16 @@
                            [:h1 "Checks"]
                            (sheet-check-list sheet-id))))
 
+(defn item-select-checkbox [ item-id ]
+  [:input {:type "checkbox" :class "item-select" :name (str "item_" item-id)}])
+
 (defn item-edit-row [ sheet-id error-msg init-vals post-target cancel-target]
   (list
    (form/form-to { } [:post post-target]
                  [:tr
+                  [:td
+                    (if-let [ item-id (:item_id init-vals) ]
+                      (item-select-checkbox (:item_id init-vals)))]
                   [:td (form/text-field { } "contributor" (:contributor init-vals))]
                   [:td (form/text-field { } "check_number" (:check_number init-vals))]
                   [:td (form/text-field { } "amount" (:amount init-vals))]
@@ -232,6 +238,7 @@
 
 (defn item-display-row [ sheet-id dep-item ]
   [:tr { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
+   [:td (item-select-checkbox (:item_id dep-item))]
    [:td.value (or (:contributor dep-item) [:span.informational "Unattributed"])]
    [:td.value (or (:check_number dep-item) [:span.informational "Cash"])]
    [:td.value (fmt-ccy (:amount dep-item))]
@@ -244,7 +251,7 @@
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id :entry)}
                       [:table.data.entries.full-width
-                       (table-head   "Contributor" "Check Number" "Amount" "Account" "Notes")
+                       (table-head ""  "Contributor" "Check Number" "Amount" "Account" "Notes")
                        (map #(if (and (parsable-integer? edit-item)
                                       (== (:item_id %) (parsable-integer? edit-item)))
                                (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
@@ -256,13 +263,17 @@
                            [:a {:href (sheet-url sheet-id)}
                             "Add new item..."]]]
                          (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))]
+                      [:input {:id "delete_entries"
+                               :type "submit"
+                               :value "Delete Selected Entries"}]
                       [:div.help
                        [:p
                         [:span.label "Contributor"] " - "
                         "Leave this blank for cash or other contributions without an attribution."]
                        [:p
                         [:span.label "Check Number"] " - "
-                        "Leave this blank for cash contributions."]])))
+                        "Leave this blank for cash contributions."]]
+                      [:input#sheet-id { :type "hidden" :name "sheet-id" :value sheet-id}])))
 
 
 (defn accept-integer [ obj message ]
@@ -302,6 +313,13 @@
          (log/info "Displaying sheet: " sheet-id)
          (render-sheet sheet-id nil { :account_id last-account-id} edit-item)))
 
+  (POST "/sheet/:sheet-id/delete-items" { { sheet-id :sheet-id } :params
+                                          item-ids :body}
+    (log/info "Deleting from sheet: " sheet-id  ", body: " item-ids)
+    (when (current-user-has-access-to-sheet? sheet-id)
+      (data/delete-deposits-from-sheet sheet-id item-ids)
+      "Success"))
+  
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
        (log/info "Displaying sheet summary: " sheet-id)
        (when (current-user-has-access-to-sheet? sheet-id)

@@ -208,3 +208,8 @@
                  :notes notes
                  :account_id account-id}
                 ["item_id=?" deposit-id]))
+
+(defn delete-deposits-from-sheet [ sheet-id deposit-ids ]
+  (doseq [ deposit-id deposit-ids ]
+    (jdbc/delete! *db* :deposit_item
+                  ["item_id=? AND count_sheet_id=?" deposit-id sheet-id])))
