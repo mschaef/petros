@@ -67,16 +67,20 @@
                           "..."))))
 
 (defn parsable-integer? [ str ]
-  (try
-   (Integer/parseInt str)
-   (catch Exception ex
-     false)))
+  (if (integer? str)
+    str
+    (try
+      (Integer/parseInt str)
+      (catch Exception ex
+        false))))
 
 (defn parsable-double? [ str ]
-  (try
-   (Double/parseDouble str)
-   (catch Exception ex
-     false)))
+  (if (number? str)
+    str
+    (try
+      (Double/parseDouble str)
+      (catch Exception ex
+        false))))
 
 (defn config-property 
   ( [ name ] (config-property name nil))
