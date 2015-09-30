@@ -238,18 +238,18 @@
                       [:h1 "Checks"]
                       (sheet-check-list id))))
 
+(defn report-page [ title & body ]
+  [:div.page
+   [:h1 title]
+   body])
+
 (defn render-printable-sheet [ sheet-id ]
   (let [info (data/count-sheet-info sheet-id)]
-    (core/render-printable (str "Count Sheet - " (fmt-date (:created_on info)) )
-                           [:div.page
-                            [:h1 "Summary"]
-                            (sheet-summary-list sheet-id)]
-                           [:div.page
-                            [:h1 "Contributors"]
-                            (sheet-contributor-report sheet-id)]
-                           [:div.page
-                            [:h1 "Checks"]
-                            (sheet-check-deposit-sheet sheet-id)])))
+    (core/render-printable
+     (str "Count Sheet - " (fmt-date (:created_on info)))
+     (report-page "Summary" (sheet-summary-list sheet-id))
+     (report-page "Contributors" (sheet-contributor-report sheet-id))
+     (report-page "Checks" (sheet-check-deposit-sheet sheet-id)))))
 
 (defn item-select-checkbox [ item-id ]
   [:input {:type "checkbox" :class "item-select" :name (str "item_" item-id)}])
