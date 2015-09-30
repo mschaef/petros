@@ -60,7 +60,7 @@
            [ (first tds) (rest tds) ]
            [ {} tds ])]
       `[:thead
-        [:tr ~attrs ~@(map (fn [ td ] [:th td]) tds)]]))
+        [:tr ~attrs ~@(map (fn [ td ] (unless (nil? td) [:th td])) tds)]]))
 
 (defn table-row [ & tds ]
   (let [ [ attrs tds ]
@@ -86,7 +86,7 @@
   (let [ user-id (core/current-user-id) ]
     (core/render-page {:page-title "Count Sheets" }
                       [:table.data
-                       (table-head "Creator" "Created On" "Total Amount" "" "")
+                       (table-head "Creator" "Created On" "Final On" "Total Amount" "")
                        [:tr
                         [:td { :colspan 5}
                          (form/form-to [:post "/"]
@@ -95,9 +95,10 @@
                        (map #(let [ id (:count_sheet_id %) ]
                                (table-row (:email_addr %)
                                           (fmt-date (:created_on %))
+                                          (fmt-date (:final_on %))
                                           (fmt-ccy (:total_amount %))
-                                          [:a { :href (sheet-url id) } "Entry"]
-                                          [:a { :href (sheet-summary-url id) } "Sheet Summary"]))
+                                          [:a { :href (sheet-url id) }
+                                           (if (nil? (:final_on %)) "Edit" "View")]))
                             (filter #(user-has-access-to-sheet? user-id %)
                                     (data/all-count-sheets)))])))
 
@@ -223,13 +224,14 @@
 (defn item-select-checkbox [ item-id ]
   [:input {:type "checkbox" :class "item-select" :name (str "item_" item-id)}])
 
-(defn item-edit-row [ sheet-id error-msg init-vals post-target cancel-target]
+(defn item-edit-row [ sheet-id editable? error-msg init-vals post-target cancel-target]
   (list
    (form/form-to { } [:post post-target]
                  [:tr
-                  [:td
-                    (if-let [ item-id (:item_id init-vals) ]
-                      (item-select-checkbox (:item_id init-vals)))]
+                  (when editable?
+                    [:td
+                     (if-let [ item-id (:item_id init-vals) ]
+                       (item-select-checkbox (:item_id init-vals)))])
                   [:td (form/text-field { } "contributor" (:contributor init-vals))]
                   [:td (form/text-field { } "check_number" (:check_number init-vals))]
                   [:td (form/text-field { } "amount" (:amount init-vals))]
@@ -240,9 +242,10 @@
    (when error-msg
      [:tr [:td {:class "error-message" :colspan "85"} error-msg]])))
 
-(defn item-display-row [ sheet-id dep-item ]
+(defn item-display-row [ sheet-id editable? dep-item ]
   [:tr { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
-   [:td (item-select-checkbox (:item_id dep-item))]
+   (when editable?
+     [:td (item-select-checkbox (:item_id dep-item))])
    [:td.value (or (:contributor dep-item) [:span.informational "Unattributed"])]
    [:td.value (or (:check_number dep-item) [:span.informational "Cash"])]
    [:td.value (fmt-ccy (:amount dep-item))]
@@ -250,26 +253,28 @@
    [:td (:notes dep-item)]])
 
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
-  (let [ info (data/count-sheet-info sheet-id) ]
+  (let [info (data/count-sheet-info sheet-id)
+        editable? (nil? (:final_on info))]
+    (log/error info editable?)
     (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id :entry)}
                       [:table.data.entries.full-width
-                       (table-head ""  "Contributor" "Check Number" "Amount" "Account" "Notes")
-                       (map #(if (and (parsable-integer? edit-item)
+                       (table-head (when editable? "")  "Contributor" "Check Number" "Amount" "Account" "Notes")
+                       (map #(if (and editable?
+                                      (parsable-integer? edit-item)
                                       (== (:item_id %) (parsable-integer? edit-item)))
-                               (item-edit-row sheet-id error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
-                               (item-display-row sheet-id %))
-                            (data/all-count-sheet-deposits sheet-id))                       
-                       (if edit-item
-                         [:tr { :class "clickable-row edit-row" :data-href (str "/sheet/" sheet-id )}
-                          [:td {:colspan "6"}
-                           [:a {:href (sheet-url sheet-id)}
-                            "Add new item..."]]]
-                         (item-edit-row sheet-id error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))]
-                      [:input {:id "delete_entries"
-                               :type "submit"
-                               :value "Delete Selected Entries"}]
+                               (item-edit-row sheet-id editable? error-msg % (str "/item/" (:item_id %))  (str "/sheet/" sheet-id))
+                               (item-display-row sheet-id editable? %))
+                            (data/all-count-sheet-deposits sheet-id))
+                       (when editable?
+                         (list (if edit-item
+                                 [:tr { :class "clickable-row edit-row" :data-href (str "/sheet/" sheet-id )}
+                                  [:td {:colspan "6"}
+                                   [:a {:href (sheet-url sheet-id)}
+                                    "Add new item..."]]]
+                                 (item-edit-row sheet-id editable? error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))
+                               [:input {:id "delete_entries" :type "submit" :value "Delete Selected Entries"}]))]
                       [:div.help
                        [:p
                         [:span.label "Contributor"] " - "
