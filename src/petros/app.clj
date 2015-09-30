@@ -135,9 +135,7 @@
      [:div.vspace]
      [:div.menu-entry.center { }
       (if (nil? (:final_on info))
-        [:input {:id "finalize_sheet"
-                 :type "submit"
-                 :value "Finalize Sheet"}]
+        [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}]
         [:a { :href (sheet-printable-url id) :target "_blank" } "Printable"])]     
      [:div.vspace]
      [:div.entry
@@ -158,7 +156,7 @@
 (defn sheet-summary-list [ id ]
   (let [summary (data/count-sheet-summary id)
         summary-data (group-summary summary)]
-     [:table.data.summary
+     [:table.data.summary.full-width
       (table-head "Account" "Check" "Cash" "Subtotal")
       (map (fn [ acct-name ]
              [:tr
@@ -182,7 +180,7 @@
                       (sheet-summary-list id))))
 
 
-(defn sheet-check-list [ id ]
+(defn sheet-check-list [ sheet-id ]
   [:table.data.checks.full-width
    [:thead
     [:tr
@@ -192,8 +190,7 @@
      [:th "Account"]
      [:th.notes "Notes"]]]
    
-   (let [ checks (filter :check_number
-                         (data/all-count-sheet-deposits id))]
+   (let [ checks (filter :check_number (data/all-count-sheet-deposits sheet-id))]
      (if (> (count checks) 0)
        (map (fn [ check ]
               [:tr
@@ -204,6 +201,34 @@
                [:td (:notes check)]])
             checks)
        [:tr [:td.no-checks { :colspan "5" } "No Checks"]]))])
+
+(defn sheet-check-deposit-sheet [ sheet-id ]
+  [:table.data.checks
+   [:thead
+    [:tr
+     [:th "Check Number"]
+     [:th "Amount"]]]
+   
+   (let [ checks (filter :check_number (data/all-count-sheet-deposits sheet-id))]
+     (if (> (count checks) 0)
+       (map (fn [ check ]
+              [:tr
+               [:td.value (or (:check_number check) "Cash")]
+               [:td.value (fmt-ccy (:amount check))]])
+            checks)
+       [:tr [:td.no-checks { :colspan "2" } "No Checks"]]))])
+
+(defn sheet-contributor-report [ sheet-id ]
+  [:table.data.checks
+   [:thead
+    [:tr
+     [:th "Contributor"]
+     [:th "Amount"]]]
+   (map (fn [ check ]
+          [:tr
+           [:td.value (:name check)]
+           [:td.value (fmt-ccy (:total check))]])
+        (data/sheet-deposits-by-contributor sheet-id))])
 
 (defn render-sheet-checks [id error-msg init-vals ]
   (let [info (data/count-sheet-info id)]
@@ -216,10 +241,15 @@
 (defn render-printable-sheet [ sheet-id ]
   (let [info (data/count-sheet-info sheet-id)]
     (core/render-printable (str "Count Sheet - " (fmt-date (:created_on info)) )
-                           [:h1 "Summary"]
-                           (sheet-summary-list sheet-id)
-                           [:h1 "Checks"]
-                           (sheet-check-list sheet-id))))
+                           [:div.page
+                            [:h1 "Summary"]
+                            (sheet-summary-list sheet-id)]
+                           [:div.page
+                            [:h1 "Contributors"]
+                            (sheet-contributor-report sheet-id)]
+                           [:div.page
+                            [:h1 "Checks"]
+                            (sheet-check-deposit-sheet sheet-id)])))
 
 (defn item-select-checkbox [ item-id ]
   [:input {:type "checkbox" :class "item-select" :name (str "item_" item-id)}])

@@ -300,3 +300,9 @@ div.help p {
 div.help span.label {
     font-weight: bold;
 }
+
+/* Printable Report */
+
+div.page {
+    page-break-after: always;
+}

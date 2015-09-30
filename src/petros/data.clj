@@ -184,6 +184,15 @@
                         " ORDER BY account, type")
                    sheet-id])))
 
+(defn sheet-deposits-by-contributor [ sheet-id ]
+  (query-all *db*
+             [(str "SELECT contributor_id, ci.name as name, sum(di.amount) as total"
+                   "  FROM deposit_item di JOIN contributor ci ON di.contributor_id=ci.contributor_id"
+                   " WHERE di.count_sheet_id=?"
+                   " GROUP BY ci.name, ci.contributor_id, di.contributor_id"
+                   " ORDER BY ci.name")
+                   sheet-id]))
+
 (defn deposit-count-sheet-id [ deposit-id ]
   (query-scalar *db*
                 [(str "SELECT count_sheet_id"
