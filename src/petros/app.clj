@@ -126,14 +126,18 @@
       (:email_addr info)]
      [:div.vspace]     
      [:div.menu-entry {:class (active-classes (= mode :entry))}
-      [:a { :href (sheet-url id)} "Edit Contributions"]]
+      [:a { :href (sheet-url id)} "Contributions"]]
      [:div.menu-entry {:class (active-classes (= mode :summary))}
       [:a { :href (sheet-summary-url id)} "Sheet Summary"]]
      [:div.menu-entry {:class (active-classes (= mode :checks))}
       [:a { :href (sheet-checks-url id)} "Checks"]]     
      [:div.vspace]
-     [:div.menu-entry.center { :target "_blank" }
-      [:a { :href (sheet-printable-url id)} "Printable"]]     
+     [:div.menu-entry.center { }
+      (if (nil? (:final_on info))
+        [:input {:id "finalize_sheet"
+                 :type "submit"
+                 :value "Finalize Sheet"}]
+        [:a { :href (sheet-printable-url id) :target "_blank" } "Printable"])]     
      [:div.vspace]
      [:div.entry
       [:a { :href "/"} "Home"]]]))
@@ -319,7 +323,13 @@
     (when (current-user-has-access-to-sheet? sheet-id)
       (data/delete-deposits-from-sheet sheet-id item-ids)
       "Success"))
-  
+
+  (POST "/sheet/:sheet-id/finalize" { { sheet-id :sheet-id } :params }
+    (log/info "Finalizing sheet: " sheet-id)
+    (when (current-user-has-access-to-sheet? sheet-id)
+      (data/finalize-sheet sheet-id (core/current-user-id))
+      "Success"))
+    
   (GET "/sheet/:sheet-id/summary" [ sheet-id ]
        (log/info "Displaying sheet summary: " sheet-id)
        (when (current-user-has-access-to-sheet? sheet-id)

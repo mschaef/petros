@@ -23,7 +23,21 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(items),
             success: function (res) {
-                console.log("res", res);
+                location.reload(true);
+            }
+        });
+    });
+    
+    $("#finalize_sheet").click(function() {
+        if (!confirm("Finalize sheet? This cannot be reversed."))
+            return;
+
+        var sheetId = $("#sheet-id").val();
+        
+        $.ajax({
+            type: "POST",
+            url: "/sheet/" + sheetId + "/finalize",
+            success: function (res) {
                 location.reload(true);
             }
         });

@@ -213,3 +213,9 @@
   (doseq [ deposit-id deposit-ids ]
     (jdbc/delete! *db* :deposit_item
                   ["item_id=? AND count_sheet_id=?" deposit-id sheet-id])))
+
+(defn finalize-sheet [ sheet-id user-id ]
+  (jdbc/update! *db* :count_sheet
+                {:final_on (java.util.Date.)
+                 :finalizer_user_id user-id}
+                ["count_sheet_id=?" sheet-id]))
