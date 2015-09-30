@@ -336,83 +336,71 @@
 (defn accept-notes [ obj message ] 
   obj)
 
+(defroutes sheet-routes
+  (context "/sheet/:sheet-id" [ sheet-id ]
+    (wrap-authorize-fn #(current-user-has-access-to-sheet? sheet-id)
+      (routes
+       (GET "/" { { edit-item :edit-item last-account-id :last_account_id } :params }
+         (render-sheet sheet-id nil { :account_id last-account-id} edit-item))
+       
+       (POST "/" { params :params }
+         (let [ {account_id :account_id
+                 contributor :contributor
+                 amount :amount
+                 check-number :check_number
+                 notes :notes} params ]
+           (log/info "Adding deposit: " params)
+           (with-validation #(render-sheet sheet-id % params nil)
+             (data/add-deposit (accept-integer sheet-id          "Invalid sheet-id")
+                               contributor
+                               (accept-integer account_id        "Invalid account")
+                               (accept-amount amount             "Invalid amount")
+                               (accept-check-number check-number "Invalid check number")
+                               (accept-notes notes               "Invalid notes")) 
+             (ring/redirect (str (sheet-url sheet-id) "?last_account_id=" account_id)))))
+       
+       (POST "/delete-items" { item-ids :body}
+         (data/delete-deposits-from-sheet sheet-id item-ids)
+         "Success" )
+
+       (POST "/finalize" [ ]
+         (data/finalize-sheet sheet-id (core/current-user-id))
+         "Success")
+       
+       (GET "/summary" [ ]
+         (render-sheet-summary sheet-id nil {}))
+
+       (GET "/printable" [ ]
+         (render-printable-sheet sheet-id))
+
+       (GET "/checks" [ ]
+         (render-sheet-checks sheet-id nil {}))))
+
+    (POST "/item/:item-id" { params :params }
+      (let [ {item-id :item-id 
+              account_id :account_id
+              contributor :contributor
+              amount :amount
+              check-number :check_number
+              notes :notes} params
+             sheet-id (data/deposit-count-sheet-id item-id)]
+        (log/info "Updating deposit: " params)
+        (with-validation #(render-sheet sheet-id % params item-id)
+          (data/update-deposit (accept-integer item-id           "Invalid item-id")
+                               contributor
+                               (accept-integer account_id        "Invalid account")
+                               (accept-amount amount             "Invalid amount")
+                               (accept-check-number check-number "Invalid check number")
+                               (accept-notes notes               "Invalid notes")) 
+          (ring/redirect (sheet-url sheet-id)))))))
+
+(defn add-sheet-for-current-user []
+  (let [ sheet-id (data/add-count-sheet (core/current-user-id))]
+    (ring/redirect (sheet-url sheet-id))))
 
 (defroutes app-routes
-  (GET "/" []
-    (render-sheet-list))
-  
-  (POST "/" []
-    (let [ user-id (core/current-user-id) ]
-      (log/info "Adding count-sheet: " user-id)
-      (let [ sheet-id (data/add-count-sheet (core/current-user-id))]
-        (ring/redirect (sheet-url sheet-id)))))
-
-  (GET "/sheet/:sheet-id" { { sheet-id :sheet-id edit-item :edit-item last-account-id :last_account_id } :params }
-       (when (current-user-has-access-to-sheet? sheet-id)
-         (log/info "Displaying sheet: " sheet-id)
-         (render-sheet sheet-id nil { :account_id last-account-id} edit-item)))
-
-  (POST "/sheet/:sheet-id/delete-items" { { sheet-id :sheet-id } :params
-                                          item-ids :body}
-    (log/info "Deleting from sheet: " sheet-id  ", body: " item-ids)
-    (when (current-user-has-access-to-sheet? sheet-id)
-      (data/delete-deposits-from-sheet sheet-id item-ids)
-      "Success"))
-
-  (POST "/sheet/:sheet-id/finalize" { { sheet-id :sheet-id } :params }
-    (log/info "Finalizing sheet: " sheet-id)
-    (when (current-user-has-access-to-sheet? sheet-id)
-      (data/finalize-sheet sheet-id (core/current-user-id))
-      "Success"))
-    
-  (GET "/sheet/:sheet-id/summary" [ sheet-id ]
-       (log/info "Displaying sheet summary: " sheet-id)
-       (when (current-user-has-access-to-sheet? sheet-id)
-         (render-sheet-summary sheet-id nil {})))
-
-  (GET "/sheet/:sheet-id/printable" [ sheet-id ]
-       (log/info "Displaying printable sheet: " sheet-id)
-       (when (current-user-has-access-to-sheet? sheet-id)
-         (render-printable-sheet sheet-id)))
-
-  (GET "/sheet/:sheet-id/checks" [ sheet-id ]
-       (log/info "Displaying sheet checks: " sheet-id)
-       (when (current-user-has-access-to-sheet? sheet-id)
-         (render-sheet-checks sheet-id nil {})))
-
-  (POST "/item/:item-id" { params :params }
-    (let [ {item-id :item-id 
-            account_id :account_id
-            contributor :contributor
-            amount :amount
-            check-number :check_number
-            notes :notes} params
-            sheet-id (data/deposit-count-sheet-id item-id)]
-      (log/info "Updating deposit: " params)
-      (with-validation #(render-sheet sheet-id % params item-id)
-        (data/update-deposit (accept-integer item-id           "Invalid item-id")
-                             contributor
-                             (accept-integer account_id        "Invalid account")
-                             (accept-amount amount             "Invalid amount")
-                             (accept-check-number check-number "Invalid check number")
-                             (accept-notes notes               "Invalid notes")) 
-        (ring/redirect (sheet-url sheet-id)))))
-
-  (POST "/sheet/:sheet-id" { params :params }
-    (let [ {sheet-id :sheet-id 
-            account_id :account_id
-            contributor :contributor
-            amount :amount
-            check-number :check_number
-            notes :notes} params ]
-      (log/info "Adding deposit: " params)
-      (with-validation #(render-sheet sheet-id % params nil)
-        (data/add-deposit (accept-integer sheet-id          "Invalid sheet-id")
-                          contributor
-                          (accept-integer account_id       "Invalid account")
-                          (accept-amount amount             "Invalid amount")
-                          (accept-check-number check-number "Invalid check number")
-                          (accept-notes notes               "Invalid notes")) 
-        (ring/redirect (str (sheet-url sheet-id) "?last_account_id=" account_id))))))
+  (GET "/" []  (render-sheet-list))
+  (POST "/" [] (add-sheet-for-current-user))
+  sheet-routes)
 
 

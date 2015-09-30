@@ -108,10 +108,12 @@
 
 
 (defn class-set [ classes ]
-  (clojure.string/join " " (map str (filter #(classes %)
-                                            (keys classes)))))
-
+  (clojure.string/join " " (map str (filter #(classes %) (keys classes)))))
 
 (defmacro lwatch [ expr ]
   `(log/error :watch '~expr ~expr))
 
+(defn wrap-authorize-fn [ authorized? handler ]
+  (fn [request]
+    (when (authorized?)
+      (handler request))))
