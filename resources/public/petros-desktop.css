@@ -47,18 +47,17 @@ div#error {
     height: 0px;
     border: none;
     padding: 0px;
-    
 }
 
 /* Top level formatting */
 
 div#contents {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    
-    padding-top: 3em;
-    padding-bottom: 10px;
+    padding: 0.5em;
     background: white;
+}
+
+body.page div#contents {
+    padding-top: 3em;
 }
 
 div#contents.with-sidebar {
@@ -194,6 +193,15 @@ div.main-menu input {
     transition: all 0.1s ease 0s;
 }
 
+div#finalized-notice {
+    font-weight: bold;
+    margin: 1.5em;
+    border-radius: 0.5em;
+    padding: 0.5em;
+    background: #e0ffe0;
+    color: green;
+}
+
 /* Generic data table styling. */
 
 table {
@@ -303,6 +311,28 @@ div.help span.label {
 
 /* Printable Report */
 
-div.page {
+div.page:not(:last-child) {
     page-break-after: always;
 }
+
+div.page h1 {
+    text-align: center;
+    padding-top: 0em;
+    patting-bottom: 1em;
+}
+
+div.report-header {
+    padding-top: 0em;
+    padding-bottom: 1em;
+}
+
+div.report-header div.entry {
+    display: inline;
+    padding-right: 2em;
+}
+
+div.report-header span.label {
+    font-weight: bold;
+    padding-right: 1em;
+}
+

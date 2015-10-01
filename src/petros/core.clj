@@ -60,7 +60,7 @@
     (hiccup/html
      [:html
       (standard-header page-title include-js)
-      [:body
+      [:body.page
        [:div#header 
         (list [:a { :href "/" } app-name] " - ")
         page-title
@@ -77,7 +77,7 @@
   (hiccup/html
    [:html
     (standard-header page-title nil)
-    [:body
+    [:body.printable
      [:div#contents 
       contents]]]))
 

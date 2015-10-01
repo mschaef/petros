@@ -125,7 +125,15 @@
       (fmt-date (:created_on info))]
      [:div.entry
       (:email_addr info)]
-     [:div.vspace]     
+     (if (:final_on info)
+       [:div#finalized-notice
+        [:div.entry
+         "Finalized on:"]
+        [:div.entry
+         (fmt-date (:final_on info))]
+        [:div.entry
+         [:a { :href (sheet-printable-url id) :target "_blank" } "Printable"]]]
+       [:div.vspace])
      [:div.menu-entry {:class (active-classes (= mode :entry))}
       [:a { :href (sheet-url id)} "Contributions"]]
      [:div.menu-entry {:class (active-classes (= mode :summary))}
@@ -134,12 +142,8 @@
       [:a { :href (sheet-checks-url id)} "Checks"]]     
      [:div.vspace]
      [:div.menu-entry.center { }
-      (if (nil? (:final_on info))
-        [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}]
-        [:a { :href (sheet-printable-url id) :target "_blank" } "Printable"])]     
-     [:div.vspace]
-     [:div.entry
-      [:a { :href "/"} "Home"]]]))
+      (when (nil? (:final_on info))
+        [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}])]]))
 
 (defn group-summary [ summary ]
   (reduce (fn [ out s-entry ]
@@ -206,6 +210,7 @@
   [:table.data.checks
    [:thead
     [:tr
+     [:th "Contributor"]
      [:th "Check Number"]
      [:th "Amount"]]]
    
@@ -213,10 +218,11 @@
      (if (> (count checks) 0)
        (map (fn [ check ]
               [:tr
+               [:td.value (:contributor check)]
                [:td.value (or (:check_number check) "Cash")]
                [:td.value (fmt-ccy (:amount check))]])
             checks)
-       [:tr [:td.no-checks { :colspan "2" } "No Checks"]]))])
+       [:tr [:td.no-checks { :colspan "3" } "No Checks"]]))])
 
 (defn sheet-contributor-report [ sheet-id ]
   [:table.data.checks
@@ -243,13 +249,23 @@
    [:h1 title]
    body])
 
+(defn render-report-header [ info ]
+  [:div.report-header
+   [:div.entry
+    [:span.label "Counter"]
+    (:email_addr info)]
+   [:div.entry
+    [:span.label "Sheet Date"]
+    (fmt-date (:created_on info))]])
+
 (defn render-printable-sheet [ sheet-id ]
-  (let [info (data/count-sheet-info sheet-id)]
+  (let [info (data/count-sheet-info sheet-id)
+        page-header (render-report-header info)]
     (core/render-printable
      (str "Count Sheet - " (fmt-date (:created_on info)))
-     (report-page "Summary" (sheet-summary-list sheet-id))
-     (report-page "Contributors" (sheet-contributor-report sheet-id))
-     (report-page "Checks" (sheet-check-deposit-sheet sheet-id)))))
+     (report-page "Summary by Account" page-header (sheet-summary-list sheet-id))
+     (report-page "Contributors" page-header (sheet-contributor-report sheet-id))
+     (report-page "Checks" page-header (sheet-check-deposit-sheet sheet-id)))))
 
 (defn item-select-checkbox [ item-id ]
   [:input {:type "checkbox" :class "item-select" :name (str "item_" item-id)}])
@@ -285,7 +301,6 @@
 (defn render-sheet [ sheet-id error-msg init-vals edit-item ]
   (let [info (data/count-sheet-info sheet-id)
         editable? (nil? (:final_on info))]
-    (log/error info editable?)
     (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id :entry)}
