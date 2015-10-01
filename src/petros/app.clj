@@ -139,11 +139,8 @@
      [:div.menu-entry {:class (active-classes (= mode :summary))}
       [:a { :href (sheet-summary-url id)} "Sheet Summary"]]
      [:div.menu-entry {:class (active-classes (= mode :checks))}
-      [:a { :href (sheet-checks-url id)} "Checks"]]     
-     [:div.vspace]
-     [:div.menu-entry.center { }
-      (when (nil? (:final_on info))
-        [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}])]]))
+      [:a { :href (sheet-checks-url id)} "Checks"]]]))
+
 
 (defn group-summary [ summary ]
   (reduce (fn [ out s-entry ]
@@ -304,6 +301,11 @@
     (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id :entry)}
+                      (if editable?
+                        [:div.toolbar
+                         [:input {:id "delete_entries" :type "submit" :value "Delete Selected"}]
+                         [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}]]
+                        )
                       [:table.data.entries.full-width
                        (table-head (when editable? "")  "Contributor" "Check Number" "Amount" "Account" "Notes")
                        (map #(if (and editable?
@@ -318,8 +320,7 @@
                                   [:td {:colspan "6"}
                                    [:a {:href (sheet-url sheet-id)}
                                     "Add new item..."]]]
-                                 (item-edit-row sheet-id editable? error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))
-                               [:input {:id "delete_entries" :type "submit" :value "Delete Selected Entries"}]))]
+                                 (item-edit-row sheet-id editable? error-msg init-vals (str "/sheet/" sheet-id) (str "/sheet/" sheet-id)))))]
                       [:div.help
                        [:p
                         [:span.label "Contributor"] " - "

@@ -67,6 +67,33 @@ div#contents.with-sidebar {
     margin-left: 230px;
 }
 
+/* Toolbar */
+
+div.toolbar {
+    width: 98%;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+div.toolbar input {
+    margin-right: 0.66em;
+    padding: 0.33em;
+    width: 10em;
+    border: 1px solid #c0c0ff;
+    color: black;
+    font-weight: bold;
+    background: #d0cdff;
+}
+
+div.toolbar input:hover {
+    background: #e0e0ff;
+}
+div.toolbar input:active {
+    position: relative;
+    top: 1px;
+    left: 1px;
+}
+
 /* Page header and footer */
 
 div#header A {
