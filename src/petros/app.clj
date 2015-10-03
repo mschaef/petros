@@ -125,15 +125,6 @@
       (fmt-date (:created_on info))]
      [:div.entry
       (:email_addr info)]
-     (if (:final_on info)
-       [:div#finalized-notice
-        [:div.entry
-         "Finalized on:"]
-        [:div.entry
-         (fmt-date (:final_on info))]
-        [:div.entry
-         [:a { :href (sheet-printable-url id) :target "_blank" } "Printable"]]]
-       [:div.vspace])
      [:div.menu-entry {:class (active-classes (= mode :entry))}
       [:a { :href (sheet-url id)} "Contributions"]]
      [:div.menu-entry {:class (active-classes (= mode :summary))}
@@ -305,7 +296,15 @@
                         [:div.toolbar
                          [:input {:id "delete_entries" :type "submit" :value "Delete Selected"}]
                          [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}]]
-                        )
+                        [:div#finalized-notice
+                         [:span.label
+                          "Sheet finalized on"]
+                         [:span.value
+                          (fmt-date (:final_on info))]
+                         [:span.label
+                          [:a { :href (sheet-printable-url sheet-id) :target "_blank" }
+                           "Open Sheet Report"]]])
+                      
                       [:table.data.entries.full-width
                        (table-head (when editable? "")  "Contributor" "Check Number" "Amount" "Account" "Notes")
                        (map #(if (and editable?
