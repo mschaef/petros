@@ -155,10 +155,10 @@
               [:td acct-name]
               [:td.value (fmt-ccy (get-in summary-data [ acct-name :check ]) 0.0)]
               [:td.value (fmt-ccy (get-in summary-data [ acct-name :cash ]) 0.0)]
-              [:td.value (fmt-ccy (+ (get-in summary-data [ acct-name :check ] 0.0)
-                                     (get-in summary-data [ acct-name :cash ] 0.0)))]])
+              [:td.value.summary (fmt-ccy (+ (get-in summary-data [ acct-name :check ] 0.0)
+                                             (get-in summary-data [ acct-name :cash ] 0.0)))]])
            (data/all-account-names))
-      [:tr
+      [:tr.summary
        [:td "Total"]
        [:td.value (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))]
        [:td.value (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))]
@@ -204,12 +204,16 @@
    
    (let [ checks (filter :check_number (data/all-count-sheet-deposits sheet-id))]
      (if (> (count checks) 0)
-       (map (fn [ check ]
-              [:tr
-               [:td.value (:contributor check)]
-               [:td.value (or (:check_number check) "Cash")]
-               [:td.value (fmt-ccy (:amount check))]])
-            checks)
+       (list
+        (map (fn [ check ]
+               [:tr
+                [:td.value (:contributor check)]
+                [:td.value (or (:check_number check) "Cash")]
+                [:td.value (fmt-ccy (:amount check))]])
+             checks)
+        [:tr.summary
+         [:td { :colspan 2 } "Total"]
+         [:td.value (fmt-ccy (apply + (map :amount checks)))]])
        [:tr [:td.no-checks { :colspan "3" } "No Checks"]]))])
 
 (defn sheet-contributor-report [ sheet-id ]

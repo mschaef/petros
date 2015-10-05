@@ -314,6 +314,11 @@ table.form {
     border-collapse: separate;
 }
 
+table .summary {
+    font-weight: bold;
+    background: #f0f0f0;
+}
+
 /* List of checks */
 
 table.checks th.notes {

@@ -1,12 +1,13 @@
 * Release 1
-** Add a total to the list of checks.
 ** Add a list of items with notes to the summary report.
-** Highlight summary total row and cols.
 ** Test auto scroll on large contributions list
 ** Add a way to add account types at runtime.
 ** Update reports, titles and format, to more closely match existing format.
 ** Separate category for rent on contribute list?
+** Gmail style scrolling of sheet body
 * Done
+** Add a total to the list of checks.
+** Highlight summary total row and cols.
 ** Secure finalized pledge sheets from view.
 ** e-Mail address verification
 ** Delete entry from count sheet.
