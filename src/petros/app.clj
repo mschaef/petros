@@ -320,20 +320,19 @@
         editable? (nil? (:final_on info))]
     (core/render-page {:page-title (str "Count Sheet - " (fmt-date (:created_on info)))
                        :include-js [ "/petros-sheet.js" ]
-                       :sidebar (render-sheet-sidebar sheet-id :entry)}
-                      (if editable?
-                        [:div.toolbar
-                         [:input {:id "delete_entries" :type "submit" :value "Delete Selected"}]
-                         [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}]]
-                        [:div#finalized-notice
-                         [:span.label
+                       :sidebar (render-sheet-sidebar sheet-id :entry)
+                       :toolbar (if editable?
+                                  [:div.toolbar
+                                   [:input {:id "delete_entries" :type "submit" :value "Delete Selected"}]
+                                   [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}]]
+                                  [:div#finalized-notice
+                                   [:span.label
                           "Sheet finalized on"]
-                         [:span.value
-                          (fmt-date (:final_on info))]
-                         [:span.label
-                          [:a { :href (sheet-printable-url sheet-id) :target "_blank" }
-                           "Open Sheet Report"]]])
-                      
+                                   [:span.value
+                                    (fmt-date (:final_on info))]
+                                   [:span.label
+                                    [:a { :href (sheet-printable-url sheet-id) :target "_blank" }
+                                     "Open Sheet Report"]]])}
                       [:table.data.entries.full-width
                        (table-head (when editable? "")  "Contributor" "Check Number" "Amount" "Account" "Notes")
                        (map #(if (and editable?

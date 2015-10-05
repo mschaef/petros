@@ -10,6 +10,7 @@ body {
     margin: 0px;
     padding: 0px;
     overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 form {
@@ -51,29 +52,46 @@ div#error {
 
 /* Top level formatting */
 
-div#contents {
+div#contents-pane {
     padding: 0.5em;
     background: white;
 }
 
-body.page div#contents {
+body.page div#contents-pane {
     padding-top: 3em;
 }
 
-div#contents.with-sidebar {
+div#contents-pane.with-sidebar {
     padding-left: 0.5em;
     padding-right: 0em;
-
     margin-left: 230px;
 }
 
-/* Toolbar */
+div#contents {
+    left: 0px;
+    right: 0px;
+    height: 100%;
+    color: #313a71;
+    line-height: 1.5em;
+    padding-top: 5px;
+    padding-bottom: 5em;
+    position: relative;
+}
+
+div#contents.with-toolbar {
+    top: 40px;
+}
 
 div.toolbar {
     width: 98%;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    position: fixed;
+    height: 3em;
+    z-index: 1;
+    vertical-align: middle;
+    background: white;
 }
+
+
 
 div.toolbar input {
     margin-right: 0.66em;
@@ -83,10 +101,17 @@ div.toolbar input {
     color: black;
     font-weight: bold;
     background: #d0cdff;
+    margin-top: 0.5em;
+    height: 2em;
 }
 
 div.toolbar input:hover {
     background: #e0e0ff;
+}
+
+div.toolbar input:disabled {
+    background: #e0e0e0;
+    color: #c0c0c0;
 }
 
 div.toolbar input:active {
@@ -126,20 +151,23 @@ span#logout A {
 }
 
 div#header {
-   background: #e0e0e0;
-   color: #202020;
+    background: #e0e0e0;
+    color: #202020;
 
-   padding: 0.7em;
-   height: 1em;
-   position: fixed;
-   width: 100%;
-   box-shadow: 2px 2px 2px #c0c0c0;
+    height: 3em;
+    line-height: 3em;
+
+    position: fixed;
+    width: 100%;
+    z-index: 1;
+    padding-left: 1em;
+    padding-right: 1em;
 }
 
 div#header div.right {
     float: right;
     vertical-align: middle;
-    padding-right: 1.4em;
+    padding-right: 2em;
 }
 
 div#footer {
@@ -161,6 +189,7 @@ div#sidebar {
     padding-top: 3em;
     float:left;
     width: 220px;
+    position: fixed;
 }
 
 div#sidebar div.content {

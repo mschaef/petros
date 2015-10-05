@@ -55,7 +55,7 @@
   [:div#footer
    "All Rights Reserved, Copyright 2015 East Coast Toolworks."])
 
-(defn render-page [{ :keys [ page-title include-js sidebar ] }  & contents]
+(defn render-page [{ :keys [ page-title include-js sidebar toolbar ] }  & contents]
   (let [username (authenticated-username)]
     (hiccup/html
      [:html
@@ -69,9 +69,11 @@
            [:span [:a {:href "/user/password"} username] " - " (logout-button)]])]
        (when sidebar
          [:div#sidebar sidebar])
-       [:div#contents {:class (class-set {"with-sidebar" sidebar})}
-        contents]
-       (render-footer username)]])))
+       [:div#contents-pane {:class (class-set {"with-sidebar" sidebar})}
+        toolbar
+        [:div#contents {:class (class-set {"with-toolbar" toolbar})}
+         contents
+         (render-footer username)]]]])))
 
 (defn render-printable [ page-title  & contents]
   (hiccup/html

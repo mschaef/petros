@@ -1,10 +1,11 @@
 * Release 1
-** Add a list of items with notes to the summary report.
 ** Add a way to add account types at runtime.
 ** Update reports, titles and format, to more closely match existing format.
 ** Is play and learn rent deductable? Should it be listed with the rest of contribs.
-** Gmail style scrolling of sheet body
+** Gray out delete button when nothing selected
 * Done
+** Gmail style scrolling of sheet body
+** Add a list of items with notes to the summary report.
 ** Test auto scroll on large contributions list
 ** Add a total to the list of checks.
 ** Highlight summary total row and cols.

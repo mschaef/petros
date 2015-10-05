@@ -27,6 +27,21 @@ $(document).ready(function () {
             }
         });
     });
+
+    function updateUI() {
+        var selected = false;
+        
+        $(".item-select").each(function(ii, elem) {
+            if ($(elem).prop("checked"))
+                selected = true;
+        });
+
+        $("#delete_entries").prop('disabled', !selected);        
+    }
+    
+    $(".item-select").click(function () {
+        updateUI();
+    });
     
     $("#finalize_sheet").click(function() {
         if (!confirm("Finalize sheet? This cannot be reversed."))
@@ -42,4 +57,6 @@ $(document).ready(function () {
             }
         });
     });
+
+    updateUI();
 });
