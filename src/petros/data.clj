@@ -174,6 +174,16 @@
                    " ORDER BY di.item_id")
               sheet-id]))
 
+(defn all-count-sheet-deposits-with-notes [ sheet-id ]
+  (query-all *db*
+             [(str "SELECT c.name as contributor, di.amount, di.notes, di.check_number, acct.name as account_name, acct.account_id as account_id, di.item_id"
+                   "  FROM (deposit_item di JOIN account acct ON di.account_id=acct.account_id)"
+                   "    LEFT JOIN contributor c ON di.contributor_id=c.contributor_id"
+                   " WHERE di.count_sheet_id=?"
+                   "   AND LENGTH(di.notes) > 0"
+                   " ORDER BY di.item_id")
+              sheet-id]))
+
 (defn count-sheet-summary [ sheet-id ]
   (map #(assoc % :type (if (= (:type %) 0) :check :cash)) 
        (query-all *db*

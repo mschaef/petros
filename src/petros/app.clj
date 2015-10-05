@@ -145,8 +145,8 @@
           0
           summary))
 
-(defn sheet-summary-list [ id ]
-  (let [summary (data/count-sheet-summary id)
+(defn sheet-summary-list [ sheet-id ]
+  (let [summary (data/count-sheet-summary sheet-id)
         summary-data (group-summary summary)]
      [:table.data.summary.full-width
       (table-head "Account" "Check" "Cash" "Subtotal")
@@ -163,6 +163,28 @@
        [:td.value (fmt-ccy (total-amounts (filter #(= :check (:type %)) summary)))]
        [:td.value (fmt-ccy (total-amounts (filter #(= :cash (:type %)) summary)))]
        [:td.value  (fmt-ccy (total-amounts summary))]]]))
+
+(defn sheet-note-list [ sheet-id ]
+  [:table.data.notes.full-width
+   [:thead
+    [:tr
+     [:th "Contributor"]
+     [:th "Check Number"]
+     [:th "Amount"]
+     [:th "Account"]
+     [:th.notes "Notes"]]]
+   
+   (let [ notes (data/all-count-sheet-deposits-with-notes sheet-id)]
+     (if (> (count notes) 0)
+       (map (fn [ note ]
+              [:tr
+               [:td (:contributor note)]
+               [:td.value (or (:check_number note) "Cash")]
+               [:td.value (fmt-ccy (:amount note))]
+               [:td.value (:account_name note)]
+               [:td (:notes note)]])
+            notes)
+       [:tr [:td.no-notes { :colspan "5" } "No deposits with notes"]]))])
 
 (defn render-sheet-summary [id error-msg init-vals ]
   (let [info (data/count-sheet-info id)]
@@ -255,7 +277,10 @@
         page-header (render-report-header info)]
     (core/render-printable
      (str "Count Sheet - " (fmt-date (:created_on info)))
-     (report-page "Summary by Account" page-header (sheet-summary-list sheet-id))
+     (report-page "Summary by Account" page-header
+                  (sheet-summary-list sheet-id)
+                  [:h2 "Notes"]
+                  (sheet-note-list sheet-id))
      (report-page "Contributors" page-header (sheet-contributor-report sheet-id))
      (report-page "Checks" page-header (sheet-check-deposit-sheet sheet-id)))))
 
@@ -393,25 +418,26 @@
          (render-printable-sheet sheet-id))
 
        (GET "/checks" [ ]
-         (render-sheet-checks sheet-id nil {}))))
+         (render-sheet-checks sheet-id nil {}))))))
 
-    (POST "/item/:item-id" { params :params }
-      (let [ {item-id :item-id 
-              account_id :account_id
-              contributor :contributor
-              amount :amount
+(defroutes item-routes
+  (POST "/item/:item-id" { params :params }
+    (let [ {item-id :item-id 
+            account_id :account_id
+            contributor :contributor
+            amount :amount
               check-number :check_number
-              notes :notes} params
-             sheet-id (data/deposit-count-sheet-id item-id)]
-        (log/info "Updating deposit: " params)
-        (with-validation #(render-sheet sheet-id % params item-id)
-          (data/update-deposit (accept-integer item-id           "Invalid item-id")
-                               contributor
-                               (accept-integer account_id        "Invalid account")
-                               (accept-amount amount             "Invalid amount")
-                               (accept-check-number check-number "Invalid check number")
-                               (accept-notes notes               "Invalid notes")) 
-          (ring/redirect (sheet-url sheet-id)))))))
+            notes :notes} params
+           sheet-id (data/deposit-count-sheet-id item-id)]
+      (log/info "Updating deposit: " params)
+      (with-validation #(render-sheet sheet-id % params item-id)
+        (data/update-deposit (accept-integer item-id           "Invalid item-id")
+                             contributor
+                             (accept-integer account_id        "Invalid account")
+                             (accept-amount amount             "Invalid amount")
+                             (accept-check-number check-number "Invalid check number")
+                             (accept-notes notes               "Invalid notes")) 
+        (ring/redirect (sheet-url sheet-id))))))
 
 (defn add-sheet-for-current-user []
   (let [ sheet-id (data/add-count-sheet (core/current-user-id))]
@@ -420,6 +446,7 @@
 (defroutes app-routes
   (GET "/" []  (render-sheet-list))
   (POST "/" [] (add-sheet-for-current-user))
-  sheet-routes)
+  sheet-routes
+  item-routes)
 
 
