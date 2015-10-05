@@ -1,15 +1,24 @@
 * Release 1
-** TODO Delete entry from count sheet.
-** TODO Autocomplete of contributor
-** TODO e-Mail address verification
-** TODO Finalization of pledge sheets
-** TODO Secure finalized pledge sheets from view.
+** Add a total to the list of checks.
+** Add a list of items with notes to the summary report.
+** Highlight summary total row and cols.
+** Test auto scroll on large contributions list
+** Add a way to add account types at runtime.
+** Update reports, titles and format, to more closely match existing format.
+** Separate category for rent on contribute list?
 * Done
-** DONE Display Count sheet in report format
-** DONE Display attribution sheet in report format
-** DONE Tie count sheet entry to contributor.
-** DONE Validation logic for line item entry.
-** DONE Add category to count sheet entry
-** DONE Create new count sheet and view on list.
-** DONE Add entry to count sheet
+** Secure finalized pledge sheets from view.
+** e-Mail address verification
+** Delete entry from count sheet.
+** Finalization of pledge sheets
+** Display Count sheet in report format
+** Display attribution sheet in report format
+** Tie count sheet entry to contributor.
+** Validation logic for line item entry.
+** Add category to count sheet entry
+** Create new count sheet and view on list.
+** Add entry to count sheet
 * Backlog
+** Add a sheet-level note field for notes to the accountant.
+** Split a single check into multiple target accounts.
+** Autocomplete of contributor
