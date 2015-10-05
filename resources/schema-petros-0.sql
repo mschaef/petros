@@ -50,7 +50,10 @@ INSERT INTO account(name) values('Food Pantry');
 INSERT INTO account(name) values('J2A - Youth Trip');
 INSERT INTO account(name) values('Memorial Fund');
 INSERT INTO account(name) values('Rector''s Discretionary');
-INSERT INTO account(name) values('Rental Income');
+INSERT INTO account(name) values('Rector''s Rent');
+INSERT INTO account(name) values('Hall Rental');
+INSERT INTO account(name) values('Play and Learn Rent');
+INSERT INTO account(name) values('Play and Learn Utilities');
 INSERT INTO account(name) values('Other (see notes)');
 
 CREATE CACHED TABLE contributor (
