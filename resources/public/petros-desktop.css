@@ -64,7 +64,7 @@ body.page div#contents-pane {
 div#contents-pane.with-sidebar {
     padding-left: 0.5em;
     padding-right: 0em;
-    margin-left: 230px;
+    margin-left: 17em;
 }
 
 div#contents {
@@ -82,18 +82,18 @@ div#contents.with-toolbar {
     top: 40px;
 }
 
-div.toolbar {
-    width: 98%;
+div#toolbar {
     position: fixed;
+    left: 17em;
+    right: 0;
     height: 3em;
+    line-height: 3em;
     z-index: 1;
     vertical-align: middle;
     background: white;
 }
 
-
-
-div.toolbar input {
+div#toolbar input {
     margin-right: 0.66em;
     padding: 0.33em;
     width: 10em;
@@ -105,28 +105,29 @@ div.toolbar input {
     height: 2em;
 }
 
-div.toolbar input:hover {
+div#toolbar input:hover {
     background: #e0e0ff;
 }
 
-div.toolbar input:disabled {
+div#toolbar input:disabled {
     background: #e0e0e0;
     color: #c0c0c0;
 }
 
-div.toolbar input:active {
+div#toolbar input:active {
     position: relative;
     top: 1px;
     left: 1px;
 }
 
 div#finalized-notice {
-    width: 98%;
     border-radius: 0.5em;
-    padding: 1em;
-    margin-bottom: 0.5em;
-    background: #e0ffe0;
+    background:  #e0ffe0;
     color: green;
+    margin: 0.5em;
+    padding: 0.5em;
+    height: 2em;
+    line-height: 2em;
 }
 
 div#finalized-notice span.label {
@@ -142,6 +143,19 @@ div#finalized-notice span.value {
 
 /* Page header and footer */
 
+div#header {
+    background: #e0e0e0;
+    color: #202020;
+
+    height: 3em;
+    line-height: 3em;
+    padding-left: 1em;
+    padding-right: 1em;
+    position: fixed;
+    width: 100%;
+    z-index: 1;
+}
+
 div#header A {
     font-weight: bold;
 }
@@ -150,19 +164,6 @@ span#logout A {
     color: red;
 }
 
-div#header {
-    background: #e0e0e0;
-    color: #202020;
-
-    height: 3em;
-    line-height: 3em;
-
-    position: fixed;
-    width: 100%;
-    z-index: 1;
-    padding-left: 1em;
-    padding-right: 1em;
-}
 
 div#header div.right {
     float: right;

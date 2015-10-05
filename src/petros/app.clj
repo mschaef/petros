@@ -322,12 +322,12 @@
                        :include-js [ "/petros-sheet.js" ]
                        :sidebar (render-sheet-sidebar sheet-id :entry)
                        :toolbar (if editable?
-                                  [:div.toolbar
+                                  (list
                                    [:input {:id "delete_entries" :type "submit" :value "Delete Selected"}]
-                                   [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}]]
+                                   [:input {:id "finalize_sheet" :type "submit" :value "Finalize Sheet"}])
                                   [:div#finalized-notice
                                    [:span.label
-                          "Sheet finalized on"]
+                                    "Sheet finalized on"]
                                    [:span.value
                                     (fmt-date (:final_on info))]
                                    [:span.label

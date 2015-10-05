@@ -70,7 +70,9 @@
        (when sidebar
          [:div#sidebar sidebar])
        [:div#contents-pane {:class (class-set {"with-sidebar" sidebar})}
-        toolbar
+        (when toolbar
+          [:div#toolbar
+           toolbar])
         [:div#contents {:class (class-set {"with-toolbar" toolbar})}
          contents
          (render-footer username)]]]])))
