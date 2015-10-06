@@ -239,17 +239,20 @@
          [:td.value (fmt-ccy (apply + (map :amount checks)))]])
        [:tr [:td.no-checks { :colspan "3" } "No Checks"]]))])
 
+
+(defn sheet-contributor-report-row [  dep-item ]
+  [:tr
+   [:td.value (or (:contributor dep-item) "Plate")]
+   [:td.value (or (:check_number dep-item) "Cash")]
+   [:td.value (fmt-ccy (:amount dep-item))]
+   [:td.value (:account_name dep-item)]
+   [:td (:notes dep-item)]])
+
 (defn sheet-contributor-report [ sheet-id ]
   [:table.data.checks
-   [:thead
-    [:tr
-     [:th "Contributor"]
-     [:th "Amount"]]]
-   (map (fn [ check ]
-          [:tr
-           [:td.value (:name check)]
-           [:td.value (fmt-ccy (:total check))]])
-        (data/sheet-deposits-by-contributor sheet-id))])
+   (table-head  "Contributor" "Check Number" "Amount" "Account" "Notes")   
+   (map sheet-contributor-report-row
+        (data/all-count-sheet-deposits sheet-id))])
 
 (defn render-sheet-checks [id error-msg init-vals ]
   (let [info (data/count-sheet-info id)]
@@ -279,11 +282,11 @@
     (core/render-printable
      (str "Count Sheet - " (fmt-date (:created_on info)))
      (report-page "Summary by Account" page-header
-                  (sheet-summary-list sheet-id)
-                  [:h2 "Notes"]
-                  (sheet-note-list sheet-id))
-     (report-page "Contributors" page-header (sheet-contributor-report sheet-id))
-     (report-page "Checks" page-header (sheet-check-deposit-sheet sheet-id)))))
+                  (sheet-summary-list sheet-id))
+     (report-page "Contributors" page-header
+                  (sheet-contributor-report sheet-id))
+     (report-page "Checks" page-header
+                  (sheet-check-deposit-sheet sheet-id)))))
 
 (defn item-select-checkbox [ item-id ]
   [:input {:type "checkbox" :class "item-select" :name (str "item_" item-id)}])
@@ -310,7 +313,7 @@
   [:tr { :class "clickable-row" :data-href (str "/sheet/" sheet-id "?edit-item=" (:item_id dep-item))}
    (when editable?
      [:td (item-select-checkbox (:item_id dep-item))])
-   [:td.value (or (:contributor dep-item) [:span.informational "Unattributed"])]
+   [:td.value (or (:contributor dep-item) [:span.informational "Plate"])]
    [:td.value (or (:check_number dep-item) [:span.informational "Cash"])]
    [:td.value (fmt-ccy (:amount dep-item))]
    [:td.value (:account_name dep-item)]
