@@ -132,8 +132,10 @@ div#finalized-notice {
     border-radius: 0.5em;
     background:  #e0ffe0;
     color: green;
-    margin: 0.5em;
-    padding: 0.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;    
     height: 2em;
     line-height: 2em;
 }
