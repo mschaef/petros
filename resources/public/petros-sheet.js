@@ -41,6 +41,8 @@ $(document).ready(function () {
     
     $(".item-select").click(function () {
         updateUI();
+
+        $(this).parent().parent().toggleClass("selected", $(this).prop("checked"));
     });
     
     $("#finalize_sheet").click(function() {
@@ -58,5 +60,11 @@ $(document).ready(function () {
         });
     });
 
+    $(document).scroll(function() {
+        var scrollTop = $(this).scrollTop();
+
+        $("#toolbar").toggleClass("shadowed", scrollTop > 0);
+    });
+       
     updateUI();
 });

@@ -84,13 +84,15 @@ div#contents.with-toolbar {
 
 div#toolbar {
     position: fixed;
-    left: 17em;
+    padding-left: 18em;
+    left: 0;
     right: 0;
     height: 3em;
     line-height: 3em;
     z-index: 1;
     vertical-align: middle;
     background: white;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 div#toolbar input {
@@ -110,14 +112,20 @@ div#toolbar input:hover {
 }
 
 div#toolbar input:disabled {
-    background: #e0e0e0;
-    color: #c0c0c0;
+    background: #f0f0f0;
+    color: #d0d0d0;
 }
 
 div#toolbar input:active {
     position: relative;
     top: 1px;
     left: 1px;
+}
+
+div#toolbar.shadowed {
+    -webkit-box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.125);
+    -moz-box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.125);
+    box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.125);    
 }
 
 div#finalized-notice {
@@ -144,7 +152,7 @@ div#finalized-notice span.value {
 /* Page header and footer */
 
 div#header {
-    background: #e0e0e0;
+    background: #f0f0f0;
     color: #202020;
 
     height: 3em;
@@ -187,7 +195,7 @@ div#footer {
 
 div#sidebar {
     padding-left: 0;
-    padding-top: 3em;
+    padding-top: 6em;
     float:left;
     width: 220px;
     position: fixed;
@@ -248,7 +256,7 @@ div.menu-entry.is-active {
 }
 
 div.menu-entry:hover {
-    background: #e0e0e0;
+    background: #f0f0f0;
 }
 
 div.menu-entry.is-inactive {
@@ -288,6 +296,10 @@ table.data > thead > tr {
 table.data tr {
     border-top: 1px solid #c0c0c0;
     border-bottom: 1px solid #c0c0c0;
+}
+
+table.data tr.selected {
+    background: #d0cdff;
 }
 
 table.data td {

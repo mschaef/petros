@@ -125,6 +125,7 @@
       (fmt-date (:created_on info))]
      [:div.entry
       (:email_addr info)]
+     [:div.vspace]
      [:div.menu-entry {:class (active-classes (= mode :entry))}
       [:a { :href (sheet-url id)} "Contributions"]]
      [:div.menu-entry {:class (active-classes (= mode :summary))}
