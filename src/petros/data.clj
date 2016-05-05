@@ -1,5 +1,6 @@
 (ns petros.data
-  (:use petros.util)
+  (:use petros.util
+        sql-file.sql-util)
   (:import )
   (:require [clojure.tools.logging :as log]
             [clojure.java.jdbc :as jdbc]
