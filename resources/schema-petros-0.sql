@@ -43,8 +43,8 @@ CREATE CACHED TABLE account (
 );
 
 INSERT INTO account(name) values('Pledge');
+INSERT INTO account(name) values('Plate Cash');
 INSERT INTO account(name) values('Altar Guild');
-INSERT INTO account(name) values('Holiday Flowers');
 INSERT INTO account(name) values('Capital Campaign');
 INSERT INTO account(name) values('Food Pantry');
 INSERT INTO account(name) values('J2A - Youth Trip');
@@ -54,6 +54,9 @@ INSERT INTO account(name) values('Rector''s Rent');
 INSERT INTO account(name) values('Hall Rental');
 INSERT INTO account(name) values('Play and Learn Rent');
 INSERT INTO account(name) values('Play and Learn Utilities');
+INSERT INTO account(name) values('AA Donations');
+INSERT INTO account(name) values('Fundraising');
+INSERT INTO account(name) values('Medical Insurance');
 INSERT INTO account(name) values('Other (see notes)');
 
 CREATE CACHED TABLE contributor (
