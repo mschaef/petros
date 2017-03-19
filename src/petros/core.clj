@@ -33,7 +33,7 @@
                                 :password password}))))
 
 (defn logout-button []
-  [:span#logout
+  [:span.logout
    [:a { :href "/logout"} "[logout]"]])
 
 (defn standard-includes [ include-js ]
@@ -51,31 +51,31 @@
    [:link { :rel "shortcut icon" :href "/favicon.ico"}]
    (standard-includes include-js)])
 
-(defn render-footer [ username ]
-  [:div#footer
-   "All Rights Reserved, Copyright 2015 East Coast Toolworks."])
-
 (defn render-page [{ :keys [ page-title include-js sidebar toolbar ] }  & contents]
   (let [username (authenticated-username)]
     (hiccup/html
      [:html
       (standard-header page-title include-js)
-      [:body.page
-       [:div#header 
+      [:body {:class (class-set {"page" true
+                                 "with-sidebar" sidebar
+                                 "with-toolbar" toolbar})}
+       [:div.header 
         (list [:a { :href "/" } app-name] " - ")
         page-title
         (unless (nil? username)
           [:div.right
            [:span [:a {:href "/user/password"} username] " - " (logout-button)]])]
        (when sidebar
-         [:div#sidebar sidebar])
-       [:div#contents-pane {:class (class-set {"with-sidebar" sidebar})}
+         [:div.sidebar sidebar])
+       [:div.contents-pane
         (when toolbar
-          [:div#toolbar
+          [:div.toolbar
            toolbar])
-        [:div#contents {:class (class-set {"with-toolbar" toolbar})}
+        [:div.contents
          contents
-         (render-footer username)]]]])))
+         [:div.footer
+          "All Rights Reserved, Copyright 2015-17 East Coast Toolworks."]]]]])))
+         
 
 (defn render-printable [ page-title  & contents]
   (hiccup/html

@@ -78,11 +78,10 @@
   `(try+
     ~@body
     (catch [ :type :form-error ] details#
-      (~fail-markup-fn (:message details#)))))
+      (~fail-markup-fn details#))))
 
-(defn fail-validation [ message ]
-  (throw+ { :type :form-error :message message }))
-
+(defn fail-validation [ field-name message ]
+  (throw+ { :type :form-error :field-name field-name :message message }))
 
 (defn class-set [ classes ]
   (clojure.string/join " " (map str (filter #(classes %) (keys classes)))))

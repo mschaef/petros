@@ -48,26 +48,27 @@ div#error {
     height: 0px;
     border: none;
     padding: 0px;
+    visibility: hidden;
 }
 
 /* Top level formatting */
 
-div#contents-pane {
+div.contents-pane {
     padding: 0.5em;
     background: white;
 }
 
-body.page div#contents-pane {
+body.page div.contents-pane {
     padding-top: 3em;
 }
 
-div#contents-pane.with-sidebar {
+body.page.with-sidebar div.contents-pane {
     padding-left: 0.5em;
     padding-right: 0em;
     margin-left: 17em;
 }
 
-div#contents {
+div.contents {
     left: 0px;
     right: 0px;
     height: 100%;
@@ -78,11 +79,11 @@ div#contents {
     position: relative;
 }
 
-div#contents.with-toolbar {
+body.page.with-toolbar div.contents {
     top: 40px;
 }
 
-div#toolbar {
+div.toolbar {
     position: fixed;
     padding-left: 18em;
     left: 0;
@@ -95,37 +96,132 @@ div#toolbar {
     border-bottom: 1px solid #e0e0e0;
 }
 
-div#toolbar input {
+div.toolbar input.command {
+    width: 10em;
+    margin-top: 0.5em;
+}
+
+div.toolbar.shadowed {
+    -webkit-box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.125);
+    -moz-box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.125);
+    box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.125);    
+}
+/* Page header and footer */
+
+div.header {
+    background: #f0f0f0;
+    color: #202020;
+
+    height: 3em;
+    line-height: 3em;
+    padding-left: 1em;
+    padding-right: 1em;
+    position: fixed;
+    width: 100%;
+    z-index: 1;
+}
+
+div.header A {
+    font-weight: bold;
+}
+
+span.logout A {
+    color: red;
+}
+
+
+div.header div.right {
+    float: right;
+    vertical-align: middle;
+    padding-right: 2em;
+}
+
+div.footer {
+    clear: both;
+    background: white;
+
+    padding-top: 0.5em;
+    color: #404040;
+
+    text-align: center;
+    font-size: 80%;
+    font-style: italic;
+}
+
+body.page.with-toolbar div.sidebar {
+    padding-top: 6em;
+}
+
+div.sidebar {
+    padding-left: 0;
+    padding-top: 4em;
+    float:left;
+    width: 220px;
+    position: fixed;
+}
+
+div.sidebar div.content {
+    padding-top: 0.5em;
+}
+
+div.sidebar div.entry {
+    text-align: center;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+}
+
+div.sidebar div.content div.entry span.label {
+    font-weight: bold;
+    padding-right: 0.25em;
+}
+
+div.sidebar div.vspace {
+    height: 1em;
+}
+
+div.sidebar div.content div.control {
+    text-align: center;
+}
+
+div.sidebar div.content div.control input {
+    padding-left: 1.33em;
+    padding-right: 1.33em;
+}
+
+div.sidebar div.content div.total {
+    text-align: center;
+    font-size: 20pt;
+    font-weight: bold;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+}
+
+/* Buttons */
+
+input.command {
     margin-right: 0.66em;
     padding: 0.33em;
-    width: 10em;
     border: 1px solid #c0c0ff;
     color: black;
     font-weight: bold;
     background: #d0cdff;
-    margin-top: 0.5em;
     height: 2em;
 }
 
-div#toolbar input:hover {
+input.command:hover {
     background: #e0e0ff;
 }
 
-div#toolbar input:disabled {
+input.command:disabled {
+    border: 1px solid #c0c0c0;
     background: #f0f0f0;
     color: #d0d0d0;
 }
 
-div#toolbar input:active {
+input.command:active {
     position: relative;
     top: 1px;
     left: 1px;
-}
-
-div#toolbar.shadowed {
-    -webkit-box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.125);
-    -moz-box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.125);
-    box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.125);    
 }
 
 div#finalized-notice {
@@ -134,8 +230,9 @@ div#finalized-notice {
     color: green;
     margin-top: 0.5em;
     margin-bottom: 0.5em;
-    padding-left: 1em;
-    padding-right: 1em;    
+    margin-right: 1em;
+    padding-left: 0.66em;
+    padding-right: 0.66em;
     height: 2em;
     line-height: 2em;
 }
@@ -149,85 +246,6 @@ div#finalized-notice span.label {
 div#finalized-notice span.value {
     display: inline;    
     padding-right: 1em;
-}
-
-/* Page header and footer */
-
-div#header {
-    background: #f0f0f0;
-    color: #202020;
-
-    height: 3em;
-    line-height: 3em;
-    padding-left: 1em;
-    padding-right: 1em;
-    position: fixed;
-    width: 100%;
-    z-index: 1;
-}
-
-div#header A {
-    font-weight: bold;
-}
-
-span#logout A {
-    color: red;
-}
-
-
-div#header div.right {
-    float: right;
-    vertical-align: middle;
-    padding-right: 2em;
-}
-
-div#footer {
-    clear: both;
-    background: white;
-
-    padding-top: 0.5em;
-    color: #404040;
-
-    text-align: center;
-    font-size: 80%;
-    font-style: italic;
-}
-
-/* Sidebar menu */
-
-div#sidebar {
-    padding-left: 0;
-    padding-top: 6em;
-    float:left;
-    width: 220px;
-    position: fixed;
-}
-
-div#sidebar div.content {
-    padding-top: 0.5em;
-}
-
-div#sidebar div.entry {
-    text-align: center;
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
-}
-
-div#sidebar div.content div.entry span.label {
-    font-weight: bold;
-    padding-right: 0.25em;
-}
-
-div#sidebar div.vspace {
-    height: 1em;
-}
-
-div#sidebar div.content div.total {
-    text-align: center;
-    font-size: 20pt;
-    font-weight: bold;
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
 }
 
 div.main-menu {
@@ -296,8 +314,8 @@ table.data > thead > tr {
 }
 
 table.data tr {
-    border-top: 1px solid #c0c0c0;
-    border-bottom: 1px solid #c0c0c0;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 table.data tr.selected {
@@ -307,22 +325,41 @@ table.data tr.selected {
 table.data td {
     padding-top: 0.33em;
     padding-bottom: 0.33em;
-
-    padding-left: 1em;
-    padding-right: 1em;
-
-    text-align: center;
 }
 
 table.data th {
     padding-top: 0.33em;
     padding-bottom: 0.33em;
-
-    padding-left: 2em;
-    padding-right: 2em;
+    text-align: left;
 }
 
-table.data td.value {
+td input {
+    width: 95%;
+}
+
+td.row-selector {
+    padding-left: 0.33em;
+    padding-right: 0.66em;
+}
+
+tr.add-item-row td {
+    background: #e0e0e0;    
+    text-align: center;
+}
+
+/* Table of count sheets */
+
+table.sheets td {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+table.sheets th {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+table.sheets td.control {
     text-align: center;
 }
 
@@ -339,7 +376,6 @@ table.entries tr.clickable-row td {
 
 table.entries tr.edit-row {
     font-style: italic;        
-    text-align: center;
     background: #e0e0e0;
 }
 
@@ -371,20 +407,32 @@ table.checks th.notes {
 
 table.checks td.no-checks {
     font-style: italic;
-    text-align: center;
 }
 
 th.full-width {
     width: 100%;
 }
 
+.error-message {
+    color: red;
+    font-weight: bold;
+    background: #fff0f0;
+    text-align: center;
+}
+
+input {
+    padding: 0.25em;
+}
+
+input.error {
+    border: 1px solid red;
+    background: #fff0f0;
+}
+
 /* Help contents at the bottom of page contents. */
 
 div.help {
-    width: 80%;
-
-    margin: 0 auto;
-    margin-top: 1em;
+    margin: 1em;
     padding: 0.5em;
 }
 
@@ -398,6 +446,23 @@ div.help span.label {
 }
 
 /* Printable Report */
+
+@media screen {
+    div.page {
+        margin-left: 1.5em;
+        margin-right: 1.5em;
+    }
+}
+
+div.page td {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+div.page th {
+    padding-left: 1em;
+    padding-right: 3em;
+}
 
 div.page:not(:last-child) {
     page-break-after: always;

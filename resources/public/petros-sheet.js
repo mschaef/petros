@@ -1,7 +1,16 @@
 /* petros-sheet.js */
 
 $(document).ready(function () {
-    $("#contributor").focus();
+    function setFocus() {
+        var errors = $("input.error");
+
+        if (errors.length > 0) {
+            errors[0].focus();
+        } else {
+            $("#contributor").focus();
+        }
+    }
+    
 
     $(".clickable-row td:not(:first-child)").click(function() {
         window.document.location = $(this).parent().data("href");
@@ -67,4 +76,5 @@ $(document).ready(function () {
     });
        
     updateUI();
+    setFocus();
 });

@@ -6,7 +6,7 @@
             [petros.handler :as handler]))
 
 (defn start-webserver [ http-port ]
-  (log/info "Starting Toto Webserver on port" http-port)
+  (log/info "Starting Petros Webserver on port" http-port)
   (let [server (jetty/run-jetty handler/handler  { :port http-port :join? false })]
     (add-shutdown-hook
      (fn []
@@ -15,6 +15,6 @@
     (.join server)))
 
 (defn -main [& args]
-  (log/info "Starting Toto")
+  (log/info "Starting Petros")
   (start-webserver (config-property "http.port" 8080))
   (log/info "end run."))
