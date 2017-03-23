@@ -1,7 +1,14 @@
 * Release 1
-** Add a way to add account types at runtime.
-** Update reports, titles and format, to more closely match existing format.
-** Is play and learn rent deductable? Should it be listed with the rest of contribs.
+** E-mail verification mails
+** Deployment script
+* Backlog
+** Add a way to add account types at runtime through the user interface.
+** Ensure all buttons are styled in the same way.
+** e-Mail finalized reports to Accounting Warden
+** Require a second user to authenticate when finalizing a report.
+** Add a sheet-level note field for notes to the accountant.
+** Split a single check into multiple target accounts.
+** An autocompletion list of potential contributors is displayed on the contributor entry field
 * Done
 ** Highlight selected rows
 
@@ -22,7 +29,3 @@
 ** Add category to count sheet entry
 ** Create new count sheet and view on list.
 ** Add entry to count sheet
-* Backlog
-** Add a sheet-level note field for notes to the accountant.
-** Split a single check into multiple target accounts.
-** Autocomplete of contributor
