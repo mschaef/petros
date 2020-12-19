@@ -7,8 +7,9 @@
             [sql-file.core :as sql-file]))
 
 (def db-connection
-  (delay (sql-file/open-sql-file (sql-file/hsqldb-file-conn (config-property "db.subname" "petros-db"))
-                                 ["petros" 0])))
+  (delay (-> (sql-file/open-pool {:name (config-property "db.subname" "petros-db")
+                                  :schema-path [ "sql/" ]})
+             (sql-file/ensure-schema [ "petros" 0 ]))))
 
 (def ^:dynamic *db* nil)
 
