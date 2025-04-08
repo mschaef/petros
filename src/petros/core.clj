@@ -20,7 +20,7 @@
 (defn current-user-id []
   ((data/get-user-by-email (authenticated-username)) :user_id))
 
-(defn db-credential-fn [ creds ]
+(defn db-credential-fn [creds]
   (if-let [user-record (data/get-user-by-email (creds :username))]
     (and (credentials/bcrypt-verify (creds :password)
                                     (user-record :password))
@@ -28,15 +28,15 @@
           :roles (data/get-user-roles (:user_id user-record))})
     nil))
 
-(defn password-matches? [ password ]
+(defn password-matches? [password]
   (not (nil? (db-credential-fn {:username (authenticated-username)
                                 :password password}))))
 
 (defn logout-button []
   [:span.logout
-   [:a { :href "/logout"} "[logout]"]])
+   [:a {:href "/logout"} "[logout]"]])
 
-(defn standard-includes [ include-js ]
+(defn standard-includes [include-js]
   (list
    (page/include-css "/petros-desktop.css"
                      "/font-awesome.min.css")
@@ -45,13 +45,13 @@
 
    (apply page/include-js (cons "/petros.js" include-js))))
 
-(defn standard-header [ page-title include-js ]
+(defn standard-header [page-title include-js]
   [:head
    [:title app-name (unless (nil? page-title) (str " - " page-title))]
-   [:link { :rel "shortcut icon" :href "/favicon.ico"}]
+   [:link {:rel "shortcut icon" :href "/favicon.ico"}]
    (standard-includes include-js)])
 
-(defn render-page [{ :keys [ page-title include-js sidebar toolbar ] }  & contents]
+(defn render-page [{:keys [page-title include-js sidebar toolbar]}  & contents]
   (let [username (authenticated-username)]
     (hiccup/html
      [:html
@@ -59,12 +59,12 @@
       [:body {:class (class-set {"page" true
                                  "with-sidebar" sidebar
                                  "with-toolbar" toolbar})}
-       [:div.header 
-        (list [:a { :href "/" } app-name] " - ")
+       [:div.header
+        (list [:a {:href "/"} app-name] " - ")
         page-title
         (unless (nil? username)
-          [:div.right
-           [:span [:a {:href "/user/password"} username] " - " (logout-button)]])]
+                [:div.right
+                 [:span [:a {:href "/user/password"} username] " - " (logout-button)]])]
        (when sidebar
          [:div.sidebar sidebar])
        [:div.contents-pane
@@ -75,14 +75,13 @@
          contents
          [:div.footer
           "All Rights Reserved, Copyright 2015-17 East Coast Toolworks."]]]]])))
-         
 
-(defn render-printable [ page-title  & contents]
+(defn render-printable [page-title  & contents]
   (hiccup/html
    [:html
     (standard-header page-title nil)
     [:body.printable
-     [:div#contents 
+     [:div#contents
       contents]]]))
 
 

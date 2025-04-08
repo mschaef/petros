@@ -5,9 +5,9 @@
             [ring.adapter.jetty :as jetty]
             [petros.handler :as handler]))
 
-(defn start-webserver [ http-port ]
+(defn start-webserver [http-port]
   (log/info "Starting Petros Webserver on port" http-port)
-  (let [server (jetty/run-jetty handler/handler  { :port http-port :join? false })]
+  (let [server (jetty/run-jetty handler/handler  {:port http-port :join? false})]
     (add-shutdown-hook
      (fn []
        (log/info "Shutting down webserver")

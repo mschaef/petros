@@ -2,7 +2,8 @@
   :description "Petros - Utility for Automating Plate Count"
   :license { :name "Copyright East Coast Toolworks (c) 2015"}
 
-  :plugins [[lein-ring "0.9.7"]]
+  :plugins [[lein-ring "0.9.7"]
+            [dev.weavejester/lein-cljfmt "0.13.0"]]
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.3.1"]
@@ -24,4 +25,14 @@
          :port 8080}
 
   :jar-name "petros.jar"
-  :uberjar-name "petros-standalone.jar")
+  :uberjar-name "petros-standalone.jar"
+
+  :release-tasks [["cljfmt" "check"]
+                  ["vcs" "assert-committed"]
+                  ["change" "version" "leiningen.release/bump-version" "release"]
+                  ["vcs" "commit"]
+                  ["vcs" "tag" "--no-sign"]
+                  ["tar"]
+                  ["change" "version" "leiningen.release/bump-version"]
+                  ["vcs" "commit"]
+                  ["vcs" "push"]])
